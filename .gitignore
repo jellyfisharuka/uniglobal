@@ -1,0 +1,15 @@
+/pkg/*.env
+/internal/config/*.json
+
+*.exe
+*.out
+*.log
+*.tmp
+*.swp
+*.DS_Store
+
+/bin/
+/build/
+/vendor/
+
+docker-compose.override.yml
