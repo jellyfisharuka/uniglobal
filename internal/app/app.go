@@ -1,15 +1,18 @@
 package app
 
 import (
-	"uniglobal/internal/db"
-	"uniglobal/internal/router"
 	"context"
 	"log"
 	"net/http"
-    _ "net/http/pprof"
-	"github.com/gin-gonic/gin"
+	_ "net/http/pprof"
+	"path/filepath"
+	"uniglobal/internal/config"
+	"uniglobal/internal/db"
+	"uniglobal/internal/router"
+
 	"github.com/gin-contrib/sessions"
-    "github.com/gin-contrib/sessions/cookie"
+	"github.com/gin-contrib/sessions/cookie"
+	"github.com/gin-gonic/gin"
 )
 
 type App struct {
@@ -26,6 +29,16 @@ func NewApp(ctx context.Context) (*App, error) {
 	return a, nil
 }
 func (a *App) initConfig(_ context.Context) error {
+	gmailPath:= filepath.Join("..", "internal", "config", "gmail.json")
+	envPath := filepath.Join("..", "pkg", ".env")
+	err := config.LoadEnvConfig(envPath)
+    if err != nil {
+        return err
+    }
+	err = config.LoadGmailConfig(gmailPath)
+	if err != nil {
+        return err
+    }
 	db.ConnectDB()
 	//db.InitRedis()
 

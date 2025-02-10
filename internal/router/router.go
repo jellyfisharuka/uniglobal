@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
+    "uniglobal/internal/handlers"
 )
 
 func SetupRouter(r *gin.Engine)  {
@@ -24,4 +25,8 @@ func SetupRouter(r *gin.Engine)  {
         pprofGroup.GET("/block", gin.WrapH(http.HandlerFunc(pprof.Handler("block").ServeHTTP)))
         pprofGroup.GET("/mutex", gin.WrapH(http.HandlerFunc(pprof.Handler("mutex").ServeHTTP)))
     }
+    r.POST("/login", handlers.LoginHandler)
+	r.POST("/signup", handlers.SignupHandler)
+	r.GET("/oauth2callback", handlers.OAuth2CallbackHandler)
+	r.GET("/googleLogin", handlers.LoginGoogleHandler(handlers.Oauth2Config))
 }
