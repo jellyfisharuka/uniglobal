@@ -1,11 +1,116 @@
 basePath: /
+definitions:
+  models.LoginSwagger:
+    properties:
+      password:
+        description: Пароль пользователя
+        type: string
+      username:
+        description: Уникальное имя пользователя
+        type: string
+    type: object
+  models.SignupSwagger:
+    properties:
+      email:
+        type: string
+      firstName:
+        description: Имя пользователя
+        type: string
+      lastName:
+        description: Фамилия пользователя
+        type: string
+      password:
+        description: Пароль пользователя
+        type: string
+      roleID:
+        description: ID роли пользователя
+        type: integer
+      telephone:
+        description: Номер телефона пользователя
+        type: string
+      username:
+        description: Уникальное имя пользователя
+        type: string
+    type: object
 host: localhost:8080
 info:
   contact: {}
   description: This is a sample server.
   title: UniGlobal
   version: "1.0"
-paths: {}
+paths:
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: Logs in an existing user
+      parameters:
+      - description: New user information
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/models.LoginSwagger'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Login user
+      tags:
+      - Auth
+  /signup:
+    post:
+      consumes:
+      - application/json
+      description: Signs up a new user
+      parameters:
+      - description: New user information
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/models.SignupSwagger'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Sign up user
+      tags:
+      - Auth
 securityDefinitions:
   Bearer:
     in: header
