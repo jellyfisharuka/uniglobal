@@ -1,6 +1,7 @@
 package config
 
 import (
+	"encoding/json"
 	"log"
 	"os"
 
@@ -11,6 +12,12 @@ type EnvConfig struct {
 	DbDSN string
 }
 
+type GmailConfig struct {
+	ClientID string `json:"client_id"`
+	ClientSecret string `json:"client_secret"`
+}
+
+var gmailConfig GmailConfig
 var envConfig EnvConfig
 
 func LoadEnvConfig(envPath string) error {
@@ -27,4 +34,18 @@ func LoadEnvConfig(envPath string) error {
 
 func GetEnvConfig() *EnvConfig {
     return &envConfig
+}
+
+func LoadGmailConfig(gmailPath string) error {
+	file, err := os.Open(gmailPath)
+	if err!=nil {
+		return err
+	}
+	defer file.Close()
+	decoder := json.NewDecoder(file)
+	return decoder.Decode(&gmailConfig)
+}
+
+func GetGmailConfig() *GmailConfig {
+	return &gmailConfig
 }

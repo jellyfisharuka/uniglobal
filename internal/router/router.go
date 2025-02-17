@@ -3,14 +3,19 @@ package router
 import (
 	"net/http"
 	"net/http/pprof"
+	"uniglobal/internal/auth"
+	"uniglobal/internal/db"
+	"uniglobal/internal/handlers"
+	"uniglobal/internal/repository"
+
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
-    "uniglobal/internal/handlers"
 )
 
 func SetupRouter(r *gin.Engine)  {
-
+    userRepo:= &repository.UserRepository{DB: db.DB}
+    userHandler := &handlers.UserHandler{Repo:userRepo}
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
     pprofGroup := r.Group("/debug/pprof")
     {
@@ -29,4 +34,7 @@ func SetupRouter(r *gin.Engine)  {
 	r.POST("/signup", handlers.SignupHandler)
 	r.GET("/oauth2callback", handlers.OAuth2CallbackHandler)
 	r.GET("/googleLogin", handlers.LoginGoogleHandler(handlers.Oauth2Config))
+    r.PUT("/user/updateInfo",  auth.AuthMiddleware(), userHandler.UpdateUserFields)
+	r.PUT("/user/change_password", auth.AuthMiddleware(), userHandler.ChangePassword)
+	r.GET("/user/me", auth.AuthMiddleware(), userHandler.GetUserInfoByID)
 }

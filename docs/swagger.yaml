@@ -1,5 +1,35 @@
 basePath: /
 definitions:
+  handlers.ErrorResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  models.ChangePasswordRequest:
+    properties:
+      confirm_password:
+        type: string
+      new_password:
+        minLength: 6
+        type: string
+      old_password:
+        type: string
+    required:
+    - confirm_password
+    - new_password
+    - old_password
+    type: object
+  models.Chat:
+    properties:
+      id:
+        type: integer
+      messages:
+        items:
+          $ref: '#/definitions/models.Message'
+        type: array
+      userID:
+        type: integer
+    type: object
   models.LoginSwagger:
     properties:
       password:
@@ -9,12 +39,42 @@ definitions:
         description: Уникальное имя пользователя
         type: string
     type: object
+  models.Message:
+    properties:
+      answer:
+        type: string
+      chatID:
+        type: integer
+      createdAt:
+        type: string
+      id:
+        type: integer
+      prompt:
+        type: string
+      senderID:
+        type: integer
+    type: object
+  models.Role:
+    properties:
+      id:
+        type: integer
+      name:
+        description: '"admin", "user"'
+        type: string
+    type: object
   models.SignupSwagger:
     properties:
+      city:
+        type: string
+      confirm_password:
+        description: RoleID    int    `json:"roleID,omitempty"` // ID роли пользователя
+        type: string
       email:
         type: string
       firstName:
         description: Имя пользователя
+        type: string
+      gender:
         type: string
       lastName:
         description: Фамилия пользователя
@@ -22,14 +82,63 @@ definitions:
       password:
         description: Пароль пользователя
         type: string
-      roleID:
-        description: ID роли пользователя
-        type: integer
       telephone:
         description: Номер телефона пользователя
         type: string
       username:
         description: Уникальное имя пользователя
+        type: string
+    type: object
+  models.UpdateUser:
+    properties:
+      city:
+        type: string
+      email:
+        type: string
+      gender:
+        type: string
+      photo:
+        type: string
+      telephone:
+        type: string
+      username:
+        type: string
+    type: object
+  models.User:
+    properties:
+      chats:
+        items:
+          $ref: '#/definitions/models.Chat'
+        type: array
+      city:
+        type: string
+      confirm_password:
+        type: string
+      createdAt:
+        type: string
+      email:
+        type: string
+      firstName:
+        type: string
+      gender:
+        type: string
+      id:
+        type: integer
+      lastName:
+        type: string
+      password:
+        type: string
+      photo:
+        type: string
+      role:
+        $ref: '#/definitions/models.Role'
+      roleID:
+        type: integer
+      telephone:
+        type: string
+      updatedAt:
+        type: string
+      username:
         type: string
     type: object
 host: localhost:8080
@@ -111,6 +220,123 @@ paths:
       summary: Sign up user
       tags:
       - Auth
+  /user/change_password:
+    put:
+      consumes:
+      - application/json
+      description: Change user password
+      parameters:
+      - description: Fields to update
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/models.ChangePasswordRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - Bearer: []
+      summary: Changen user password
+      tags:
+      - users
+  /user/me:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve the information of the currently authenticated user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.User'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      security:
+      - Bearer: []
+      summary: Get the authenticated user's info
+      tags:
+      - users
+  /user/updateInfo:
+    put:
+      consumes:
+      - application/json
+      description: Update user fields like city, email, phone (optional)
+      parameters:
+      - description: Fields to update
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdateUser'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - Bearer: []
+      summary: Update user fields
+      tags:
+      - users
 securityDefinitions:
   Bearer:
     in: header
