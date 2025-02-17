@@ -4,10 +4,9 @@ import (
 	"uniglobal/internal/auth"
 	"uniglobal/internal/db"
 	"uniglobal/internal/models"
+	"uniglobal/internal/utils"
 	"fmt"
 	"net/http"
-	"strings"
-
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator"
 )
@@ -30,7 +29,7 @@ func LoginHandler(c *gin.Context) {
 	}
 	var existingUser models.User
 	result := db.DB.Select("ID", "username", "password").Where("username = ?", loginUser.Username).First(&existingUser)
-	if result.Error != nil || !auth.CheckPassword(existingUser.Password, loginUser.Password) {
+	if result.Error != nil || !utils.CheckLoginPassword(existingUser.Password, loginUser.Password) {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid username or password"})
 		return
 	}
@@ -62,34 +61,52 @@ func LoginHandler(c *gin.Context) {
 // @Failure 500    {object}  map[string]string
 // @Router  /signup [post]
 func SignupHandler(c *gin.Context) {
-	var newUser models.User
-	if err := c.BindJSON(&newUser); err != nil {
+	var signupJson models.SignupSwagger
+	if err := c.BindJSON(&signupJson); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
 		return
 	}
+
+	// Валидация структуры signupJson
 	validate := validator.New()
-
-	if err := validate.Struct(newUser); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid email format"})
-		return
-	}
-	 err := auth.SignupUser(db.DB, newUser)
-	if err != nil {
-		if strings.Contains(err.Error(), "username already exists") {
-			c.JSON(http.StatusConflict, gin.H{"error": "Username already exists"})
-		} else if strings.Contains(err.Error(), "invalid email format") {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid email format"})
-		} else if strings.Contains(err.Error(), "invalid phone number format") {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid phone number format"})
-		} else if strings.Contains(err.Error(), "role not found") {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Role not found in database"})
-		} else {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user"})
-		}
+	if err := validate.Struct(signupJson); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Validation failed"})
 		return
 	}
 
-	c.JSON(http.StatusCreated, gin.H{"message": "User signed up successfully"})
+	// Проверка пароля и confirm password
+	if err := utils.ValidateNewPassword(signupJson.Password, signupJson.ConfirmPassword); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 
+	// Создание объекта User
+	newUser := models.User{
+		Username:  signupJson.Username,
+		Password:  signupJson.Password,
+		FirstName: signupJson.FirstName,
+		LastName:  signupJson.LastName,
+		Email:     signupJson.Email,
+		Telephone: signupJson.Telephone,
+		City:      signupJson.City,
+		Gender:    &signupJson.Gender,
+	}
+
+	// Регистрация пользователя
+	err := auth.SignupUser(db.DB, newUser)
+	switch err {
+	case nil:
+		c.JSON(http.StatusCreated, gin.H{"message": "User created successfully"})
+	case utils.ErrUsernameExists:
+		c.JSON(http.StatusConflict, gin.H{"error": err.Error()})
+	case utils.ErrInvalidEmail, utils.ErrInvalidPhoneNumber, utils.ErrInvalidCity, utils.ErrInvalidGender:
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	case utils.ErrRoleNotFound:
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+	default:
+		c.JSON(http.StatusInternalServerError, gin.H{"error": utils.ErrFailedToCreateUser.Error()})
+	}
 }
+
+
 
