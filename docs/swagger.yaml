@@ -2,7 +2,7 @@ basePath: /
 definitions:
   handlers.ErrorResponse:
     properties:
-      message:
+      error:
         type: string
     type: object
   models.ChangePasswordRequest:
@@ -53,6 +53,20 @@ definitions:
         type: string
       senderID:
         type: integer
+    type: object
+  models.MessageSwagger:
+    properties:
+      chatID:
+        description: The ID of the chat
+        type: integer
+      prompt:
+        description: The message content (input from user)
+        type: string
+    type: object
+  models.Question:
+    properties:
+      question:
+        type: string
     type: object
   models.Role:
     properties:
@@ -148,6 +162,148 @@ info:
   title: UniGlobal
   version: "1.0"
 paths:
+  /api/generate/gpt:
+    post:
+      consumes:
+      - application/json
+      description: Generate content based on the given prompt
+      parameters:
+      - description: Question to get answer for
+        in: body
+        name: question
+        required: true
+        schema:
+          $ref: '#/definitions/models.Question'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - Bearer: []
+      summary: GenerateContent
+      tags:
+      - generate
+  /chats:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve all chats
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Chat'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      security:
+      - Bearer: []
+      summary: Get all chats
+      tags:
+      - chats
+    post:
+      consumes:
+      - application/json
+      description: Create a new chat by providing the chat details (empty by default)
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Chat'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      security:
+      - Bearer: []
+      summary: Create a new chat
+      tags:
+      - chats
+  /chats/{chatID}/messages:
+    post:
+      consumes:
+      - application/json
+      description: Send a message to a specified chat, and generate an AI response
+      parameters:
+      - description: Message content
+        in: body
+        name: message
+        required: true
+        schema:
+          $ref: '#/definitions/models.MessageSwagger'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Message sent successfully
+          schema:
+            $ref: '#/definitions/models.MessageSwagger'
+        "400":
+          description: Invalid input
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "401":
+          description: User not authenticated
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      security:
+      - Bearer: []
+      summary: Send a message to a chat
+      tags:
+      - chats
+  /chats/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a chat by its ID
+      parameters:
+      - description: Chat ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Chat'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      security:
+      - Bearer: []
+      summary: Get a chat by ID
+      tags:
+      - chats
   /login:
     post:
       consumes:
@@ -337,6 +493,31 @@ paths:
       summary: Update user fields
       tags:
       - users
+  /userchats:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve all chats for user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Chat'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      security:
+      - Bearer: []
+      summary: Get all chats for user
+      tags:
+      - chats
 securityDefinitions:
   Bearer:
     in: header

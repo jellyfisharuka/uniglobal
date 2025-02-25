@@ -14,9 +14,6 @@ type UserHandler struct {
 	Repo *repository.UserRepository
 }
 
-type ErrorResponse struct {
-    Message string `json:"message"`
-}
 
 // @Security Bearer
 // @Summary Update user fields
