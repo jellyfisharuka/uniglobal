@@ -24,21 +24,9 @@ Please request them from the project developer and place them in the appropriate
 go mod tidy
 ```
 
-### 4. Run Database Migrations (if applicable)
-If the project includes database migrations, run:
-```sh
-go run cmd/migrate/main.go
-```
-
 ### 5. Build and Run the Project
 ```sh
 go run cmd/main/main.go
-```
-
-### 6. Running with Docker (Optional)
-If a Docker setup is available, you can build and run the project using:
-```sh
-docker-compose up --build
 ```
 
 ## Project Structure
@@ -48,8 +36,8 @@ docker-compose up --build
 │   ├── main/
 │   │   ├── main.go  # Entry point of the application
 │── internal/        # Core application logic
-│── pkg/            # Reusable packages
-│── config/         # Configuration files
+    │── config/ 
+│── pkg/            # Reusable packages        # Configuration files
 │── .env            # Environment variables (not included, request from dev)
 ```
 
