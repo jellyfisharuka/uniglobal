@@ -20,3 +20,8 @@ type Message struct {
 	SenderID  uint      `gorm:"not null"` 
 	CreatedAt time.Time `gorm:"autoCreateTime"`
 }
+
+type MessageSwagger struct {
+    ChatID  int    `json:"chatID"`  // The ID of the chat
+    Prompt  string `json:"prompt"`  // The message content (input from user)
+}
