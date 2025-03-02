@@ -47,7 +47,7 @@ func generateChatgpt(ctx context.Context, question string) (string, error) {
 	client := openai.NewClient(apiKey)
 
 	request := openai.ChatCompletionRequest{
-		Model: "gpt-4o-mini", 
+		Model: "ft:gpt-4o-mini-2024-07-18:personal::AZePBB1d", 
 		Messages: []openai.ChatCompletionMessage{
 			{
 				Role:    "user", 

@@ -188,6 +188,77 @@ paths:
       summary: GenerateContent
       tags:
       - generate
+  /api/generate/motivational_letter:
+    post:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: Generate a motivational letter based on user data
+      parameters:
+      - description: Age
+        in: formData
+        name: age
+        required: true
+        type: integer
+      - description: University
+        in: formData
+        name: university
+        required: true
+        type: string
+      - description: Country
+        in: formData
+        name: country
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - Bearer: []
+      - GoogleOAuth: []
+      summary: Create Motivational Letter
+      tags:
+      - letters
+  /api/generate/recommendation_letter:
+    post:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: Generate a basic recommendation letter based on provided user data
+      parameters:
+      - description: Relationship with Candidate
+        in: formData
+        name: relationship
+        required: true
+        type: string
+      - description: Key Achievements of Candidate
+        in: formData
+        name: achievements
+        required: true
+        type: string
+      - description: Key Qualities of Candidate
+        in: formData
+        name: qualities
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - Bearer: []
+      summary: Create Recommendation Letter
+      tags:
+      - letters
   /chats:
     get:
       consumes:
