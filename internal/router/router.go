@@ -45,4 +45,8 @@ func SetupRouter(r *gin.Engine)  {
 	})
 	r.GET("/chats", auth.AdminMiddleware(), chatHandler.GetAllChats)
 	r.GET("/userchats", auth.AuthMiddleware(), chatHandler.GetUserChats)
+    r.POST("/api/generate/motivational_letter", auth.AuthMiddleware(), func(c *gin.Context) {
+		handlers.CreateMotivationalLetterHandler(c)})
+		r.POST("/api/generate/recommendation_letter", auth.AuthMiddleware(), func(c *gin.Context) {
+			handlers.CreateRecommendationLetterHandler(c)})
 }
