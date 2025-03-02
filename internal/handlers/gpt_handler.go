@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"uniglobal/internal/models"
 	"context"
 	"fmt"
 	"log"
@@ -10,11 +9,9 @@ import (
 
 	//"fmt"
 	//"io"
-	"net/http"
 
 	//"os"
 
-	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	"github.com/sashabaranov/go-openai"
 )
@@ -28,23 +25,13 @@ import (
 // @Param question body models.Question true "Question to get answer for"
 // @Success 200 {object} map[string]string
 // @Router /api/generate/gpt [post]
-func GeneratePythonHandler(c *gin.Context) (string, error){
-	var question models.Question
-	if err := c.ShouldBindJSON(&question); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Bad request", "details": err.Error()})
-		return "", err
-	}
-	ctx := c.Request.Context()
-	answer, err := generateChatgpt(ctx, question.Question)
+func GeneratePythonHandler(ctx context.Context, prompt string) (string, error) {
+	answer, err := generateChatgpt(ctx, prompt)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate answer"})
 		return "", err
 	}
-
-	c.JSON(http.StatusOK, models.AnswerResponse{Answer: answer})
 	return answer, nil
 }
-
 
 func generateChatgpt(ctx context.Context, question string) (string, error) {
 	envPath := filepath.Join("..", "pkg", ".env") 

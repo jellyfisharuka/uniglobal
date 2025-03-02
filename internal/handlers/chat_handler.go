@@ -7,7 +7,6 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"github.com/tmc/langchaingo/llms/googleai"
 )
 
 type ChatHandler struct {
@@ -90,38 +89,39 @@ func (h *ChatHandler) GetChat(c *gin.Context) {
 // @Failure 401 {object} ErrorResponse "User not authenticated"
 // @Failure 500 {object} ErrorResponse "Internal server error"
 // @Router /chats/{chatID}/messages [post]
-func (h *ChatHandler) SendMessage(c *gin.Context, llm *googleai.GoogleAI) {
+func (h *ChatHandler) SendMessage(c *gin.Context) {
     var message models.Message
+
     if err := c.ShouldBindJSON(&message); err != nil {
-        c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+        c.JSON(http.StatusBadRequest, gin.H{"error": "Некорректный JSON", "details": err.Error()})
         return
     }
 
     userID, exists := c.Get("ID")
     if !exists {
-        c.JSON(http.StatusUnauthorized, gin.H{"error": "User not authenticated"})
+        c.JSON(http.StatusUnauthorized, gin.H{"error": "Пользователь не аутентифицирован"})
         return
     }
 
-    message.SenderID = uint(userID.(int)) 
+    message.SenderID = uint(userID.(int))
 
-    c.Set("prompt", message.Prompt)
-
-    generatedAnswer, err := GeneratePythonHandler(c)
+    // Передаём `message.Prompt` напрямую, а не пытаемся парсить JSON второй раз
+    generatedAnswer, err := GeneratePythonHandler(c.Request.Context(), message.Prompt)
     if err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate response"})
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка генерации ответа", "details": err.Error()})
         return
     }
 
     message.Answer = generatedAnswer
 
     if err := h.Repo.AddMessageToChat(&message); err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to send message"})
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка сохранения сообщения"})
         return
     }
 
     c.JSON(http.StatusCreated, message)
 }
+
 
 // @Security Bearer
 // GetChat godoc
