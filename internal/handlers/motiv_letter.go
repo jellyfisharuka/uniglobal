@@ -47,8 +47,9 @@ func CreateMotivationalLetterHandler(c *gin.Context) {
 	country := c.PostForm("country")
 
 	prompt := fmt.Sprintf("My name is %s, I am %s years old, my email is %s, my telephone number is %s. I want to apply to %s. I am from %s. Please generate a complete motivational letter for university admission without any placeholders or example instructions. Include only the final content of the letter.", name, age, email, phone, university, country)
-
+    fmt.Println("Prompt:", prompt)
 	answer, err := GeneratePythonHandler(c.Request.Context(), prompt)
+	fmt.Println("answer", answer)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate letter", "details": err.Error()})
 		return

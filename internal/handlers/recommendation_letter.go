@@ -1,14 +1,14 @@
 package handlers
 
 import (
-	"uniglobal/internal/db"
-	"uniglobal/internal/models"
 	"fmt"
 	"net/http"
 	"time"
+	"uniglobal/internal/db"
+	"uniglobal/internal/models"
 
 	"github.com/gin-gonic/gin"
-//	"github.com/tmc/langchaingo/llms/googleai"
+	//	"github.com/tmc/langchaingo/llms/googleai"
 )
 
 // @Security Bearer
@@ -45,13 +45,12 @@ func CreateRecommendationLetterHandler(c *gin.Context) {
    // if authorName != "" {
 	//	prompt += fmt.Sprintf(" Sincerely, %s. and today's date: %s.", authorName, currentDate)
 	//}
-	// Генерация текста рекомендательного письма
+	fmt.Println("prompt", prompt)
 	 answer, err := GeneratePythonHandler(c.Request.Context(), prompt)
 	 if err != nil {
 		 c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate letter", "details": err.Error()})
 		 return
 	 }
- 
-	 // Отправляем JSON-ответ с результатом
+     fmt.Println("answer", answer)
 	 c.JSON(http.StatusOK, gin.H{"recommendation_letter": answer})
 }

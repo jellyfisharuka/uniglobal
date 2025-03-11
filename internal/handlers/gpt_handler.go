@@ -57,7 +57,6 @@ func generateChatgpt(ctx context.Context, question string) (string, error) {
 		Temperature: 0.7, 
 	}
 
-	// Выполняем запрос
 	response, err := client.CreateChatCompletion(ctx, request)
 	if err != nil {
 		log.Printf("Error while calling OpenAI: %v", err)
