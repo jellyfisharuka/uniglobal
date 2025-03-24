@@ -411,6 +411,49 @@ paths:
       summary: Login user
       tags:
       - Auth
+  /send_checklist:
+    post:
+      description: Возвращает URL файла для указанного типа чек-листа и отправляет
+        на почту пользователя
+      parameters:
+      - description: ID типа чек-листа
+        in: query
+        name: type_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - Bearer: []
+      - GoogleOAuth: []
+      summary: Получить чек-лист
+      tags:
+      - checklist
   /signup:
     post:
       consumes:

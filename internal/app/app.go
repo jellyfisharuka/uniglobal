@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	_ "net/http/pprof"
+	"os"
 	"path/filepath"
 	"uniglobal/internal/config"
 	"uniglobal/internal/db"
@@ -29,9 +30,18 @@ func NewApp(ctx context.Context) (*App, error) {
 	return a, nil
 }
 func (a *App) initConfig(_ context.Context) error {
-	gmailPath:= filepath.Join("..", "internal", "config", "gmail.json")
-	envPath := filepath.Join("..", "pkg", ".env")
-	err := config.LoadEnvConfig(envPath)
+	//gmailPath:= filepath.Join("..", "internal", "config", "gmail.json")
+	//gmailPath := filepath.Join("..", "pkg", "gmail.json")
+	//envPath := filepath.Join("..", "pkg", ".env")
+	workDir, err := os.Getwd()
+	if err != nil {
+		return err
+	}
+    
+	//jsonPath := filepath.Join(workDir, "internal", "config", "config.json")
+	gmailPath := filepath.Join(workDir,  "internal", "config", "gmail.json")
+	envPath := filepath.Join(workDir, "pkg", ".env")
+	err = config.LoadEnvConfig(envPath)
     if err != nil {
         return err
     }

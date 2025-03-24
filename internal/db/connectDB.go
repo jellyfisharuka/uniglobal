@@ -30,7 +30,7 @@ func ConnectDB() {
 	}
 	log.Println("Successfully connected to database")
 
-	err = DB.AutoMigrate(models.Email{}, models.Role{}, models.User{}, models.FAQ{}, models.Chat{}, models.Message{})
+	err = DB.AutoMigrate(models.Email{}, models.Role{}, models.User{}, models.FAQ{}, models.Chat{}, models.Message{}, models.CheckList{})
 	if err != nil {
 		panic("Failed to migrate DB schemas")
 	}

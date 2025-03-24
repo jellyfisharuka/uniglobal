@@ -11,45 +11,45 @@ import (
 	"github.com/sendgrid/sendgrid-go/helpers/mail"
 )
 
-func WelcomePush(userEmail string) {
-	envPath := filepath.Join("..", "pkg", ".env") 
+type EmailService struct {
+	APIKey string
+	From   *mail.Email
+}
+
+func NewEmailService() (*EmailService, error) {
+	envPath := filepath.Join("..", "pkg", ".env")
 	err := godotenv.Load(envPath)
-    if err != nil {
-        log.Fatal("Ошибка при загрузке .env файла")
-    }
+	if err != nil {
+		log.Println("⚠️ Не удалось загрузить .env, используем переменные окружения")
+	}
+
 	apiKey := os.Getenv("SENDGRID_API_KEY")
 	if apiKey == "" {
-		log.Fatal("SENDGRID_API_KEY не установлен")
+		return nil, fmt.Errorf("SENDGRID_API_KEY не установлен")
 	}
-	from := mail.NewEmail("Beta project", "arukeulen")
-	subject := "Thank You For Registering"
-	to := mail.NewEmail("Example User", userEmail)
-	plainTextContent := "Hi "+ userEmail+ "!\n\n" +
-    "Thank you for joining our beta app! We’re thrilled to have you as one of our first users.\n" +
-    "We hope you enjoy exploring the features of our project.\n\n" +
-    "Your feedback is incredibly important to us, so please don’t hesitate to share your thoughts and suggestions.\n" +
-    "We’re committed to making our product better with your help!\n\n" +
-    "We look forward to hearing from you!\n\n" +
-    "Best regards,\n" +
-    "Aruzhan"
-	htmlContent := "<strong>Hi " + userEmail + "!</strong><br><br>" +
-    "Thank you for joining our beta app! We’re thrilled to have you as one of our first users.<br>" +
-    "We hope you enjoy exploring the features of our project.<br><br>" +
-    "<img src='https://yt3.googleusercontent.com/82UnWmIFlgRnWam4R5tqS3qv-MaawpGx0QFLSYM5mrABFO1_XyFF7GRJLxToIU-gD9i4K_fc_w=s900-c-k-c0x00ffffff-no-rj' alt='Description of image' style='max-width: 100%; height: auto;'><br><br>" + // Замените на вашу ссылку
-    "Your feedback is incredibly important to us, so please don’t hesitate to share your thoughts and suggestions.<br>" +
-    "We’re committed to making our product better with your help!<br><br>" +
-    "We look forward to hearing from you!<br><br>" +
-    "Best regards,<br>" +
-    "Aruzhan"
+    fmt.Println("apikey", apiKey)
+	fromEmail := os.Getenv("SENDGRID_FROM_EMAIL")
+	if fromEmail == "" {
+		fromEmail = "arukeulen@gmail.com" // Дефолтный email
+	}
 
-	message := mail.NewSingleEmail(from, subject, to, plainTextContent, htmlContent)
-	client := sendgrid.NewSendClient(apiKey)
+	return &EmailService{
+		APIKey: apiKey,
+		From:   mail.NewEmail("UniGlobal", fromEmail),
+	}, nil
+}
+
+func (s *EmailService) SendEmail(toEmail, subject, textContent, htmlContent string) error {
+	to := mail.NewEmail("", toEmail)
+
+	message := mail.NewSingleEmail(s.From, subject, to, textContent, htmlContent)
+	client := sendgrid.NewSendClient(s.APIKey)
 	response, err := client.Send(message)
+   fmt.Println("response", response)
 	if err != nil {
-		log.Println(err)
-	} else {
-		fmt.Println(response.StatusCode)
-		fmt.Println(response.Body)
-		fmt.Println(response.Headers)
+		log.Printf("❌ Ошибка отправки письма: %v", err)
+		return err
 	}
+	log.Printf("✅ Email отправлен! Status: %d", response.StatusCode)
+	return nil
 }

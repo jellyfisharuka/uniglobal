@@ -4,7 +4,6 @@ import (
 	"net/http"
 	"net/http/pprof"
 	"uniglobal/internal/auth"
-	"uniglobal/internal/db"
 	"uniglobal/internal/handlers"
 	"uniglobal/internal/repository"
 	"github.com/gin-gonic/gin"
@@ -13,11 +12,12 @@ import (
 )
 
 func SetupRouter(r *gin.Engine)  {
-    userRepo:= &repository.UserRepository{DB: db.DB}
-    userHandler := &handlers.UserHandler{Repo:userRepo}
-    chatRepo := &repository.ChatRepository{DB: db.DB}
-    chatHandler := &handlers.ChatHandler{Repo: chatRepo}
+    repos := repository.NewRepositories() 
+
+    rHandlers := handlers.NewHandlers(repos) // resource handlers 
+
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+
     pprofGroup := r.Group("/debug/pprof")
     {
         pprofGroup.GET("/", gin.WrapH(http.HandlerFunc(pprof.Index)))
@@ -31,20 +31,26 @@ func SetupRouter(r *gin.Engine)  {
         pprofGroup.GET("/block", gin.WrapH(http.HandlerFunc(pprof.Handler("block").ServeHTTP)))
         pprofGroup.GET("/mutex", gin.WrapH(http.HandlerFunc(pprof.Handler("mutex").ServeHTTP)))
     }
+
     r.POST("/login", handlers.LoginHandler)
 	r.POST("/signup", handlers.SignupHandler)
 	r.GET("/oauth2callback", handlers.OAuth2CallbackHandler)
 	r.GET("/googleLogin", handlers.LoginGoogleHandler(handlers.Oauth2Config))
-    r.PUT("/user/updateInfo",  auth.AuthMiddleware(), userHandler.UpdateUserFields)
-	r.PUT("/user/change_password", auth.AuthMiddleware(), userHandler.ChangePassword)
-	r.GET("/user/me", auth.AuthMiddleware(), userHandler.GetUserInfoByID)
-    r.POST("/chats", auth.AuthMiddleware(), chatHandler.CreateChat)
-    r.GET("/chats/:id", auth.AuthMiddleware(), chatHandler.GetChat)
+
+    r.PUT("/user/updateInfo",  auth.AuthMiddleware(), rHandlers.UserHandler.UpdateUserFields)
+	r.PUT("/user/change_password", auth.AuthMiddleware(), rHandlers.UserHandler.ChangePassword)
+	r.GET("/user/me", auth.AuthMiddleware(),rHandlers.UserHandler.GetUserInfoByID)
+
+    r.POST("/chats", auth.AuthMiddleware(), rHandlers.ChatHandler.CreateChat)
+    r.GET("/chats/:id", auth.AuthMiddleware(), rHandlers.ChatHandler.GetChat)
     r.POST("/chats/:chatID/messages", auth.AuthMiddleware(), func(c *gin.Context) {
-		chatHandler.SendMessage(c) 
+		rHandlers.ChatHandler.SendMessage(c) 
 	})
-	r.GET("/chats", auth.AdminMiddleware(), chatHandler.GetAllChats)
-	r.GET("/userchats", auth.AuthMiddleware(), chatHandler.GetUserChats)
+	r.GET("/chats", auth.AdminMiddleware(), rHandlers.ChatHandler.GetAllChats)
+	r.GET("/userchats", auth.AuthMiddleware(), rHandlers.ChatHandler.GetUserChats)
+
+    r.POST("/send_checklist", auth.AuthMiddleware(), rHandlers.ChecklistHandler.SendCheckListByType)
+    
     r.POST("/api/generate/motivational_letter", auth.AuthMiddleware(), func(c *gin.Context) {
 		handlers.CreateMotivationalLetterHandler(c)})
 		r.POST("/api/generate/recommendation_letter", auth.AuthMiddleware(), func(c *gin.Context) {
