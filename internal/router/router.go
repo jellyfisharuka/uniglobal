@@ -50,6 +50,7 @@ func SetupRouter(r *gin.Engine)  {
 	r.GET("/userchats", auth.AuthMiddleware(), rHandlers.ChatHandler.GetUserChats)
 
     r.POST("/send_checklist", auth.AuthMiddleware(), rHandlers.ChecklistHandler.SendCheckListByType)
+    r.POST("/send_default_checklist", rHandlers.ChecklistHandler.SendDefaultCheckList)
 
     r.GET("/download-pdf", auth.AuthMiddleware(), handlers.GeneratePDFHandler)
 

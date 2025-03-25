@@ -583,6 +583,45 @@ paths:
       summary: Получить чек-лист
       tags:
       - checklist
+  /send_default_checklist:
+    post:
+      description: Возвращает URL файла чек-листа и отправляет его на указанную почту
+      parameters:
+      - description: Email незарегистрированного пользователя
+        in: query
+        name: email
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Получить чек-лист (для незарегистрированного пользователя)
+      tags:
+      - checklist
   /signup:
     post:
       consumes:

@@ -28,3 +28,4 @@ func (r *CheckListRepository) GetFileByTypeID(typeID int) (string, error) {
 
 	return checklist.FileURL, nil
 }
+
