@@ -50,6 +50,11 @@ func SetupRouter(r *gin.Engine)  {
 	r.GET("/userchats", auth.AuthMiddleware(), rHandlers.ChatHandler.GetUserChats)
 
     r.POST("/send_checklist", auth.AuthMiddleware(), rHandlers.ChecklistHandler.SendCheckListByType)
+
+    r.GET("/download-pdf", auth.AuthMiddleware(), handlers.GeneratePDFHandler)
+
+    r.GET("/favorites", auth.AuthMiddleware(), handlers.GetFavResponses)
+    r.PUT("/messages/like", auth.AuthMiddleware(), handlers.ToggleLikeMessage)
     
     r.POST("/api/generate/motivational_letter", auth.AuthMiddleware(), func(c *gin.Context) {
 		handlers.CreateMotivationalLetterHandler(c)})

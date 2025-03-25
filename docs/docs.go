@@ -352,6 +352,116 @@ const docTemplate = `{
                 }
             }
         },
+        "/download-pdf": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    },
+                    {
+                        "GoogleOAuth": []
+                    }
+                ],
+                "description": "Принимает текст и возвращает PDF-файл для скачивания",
+                "produces": [
+                    "application/pdf"
+                ],
+                "tags": [
+                    "pdf"
+                ],
+                "summary": "Скачать PDF с текстом",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Текст для генерации PDF",
+                        "name": "text",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "file"
+                        }
+                    },
+                    "400": {
+                        "description": "Ошибка: текст не передан",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Ошибка: не удалось создать PDF",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/favorites": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    },
+                    {
+                        "GoogleOAuth": []
+                    },
+                    {
+                        "Bearer": []
+                    },
+                    {
+                        "GoogleOAuth": []
+                    }
+                ],
+                "description": "Возвращает список сообщений, которые пользователь отметил как избранные (лайкнул)",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "favorites"
+                ],
+                "summary": "Получить избранные ответы",
+                "responses": {
+                    "200": {
+                        "description": "Список избранных сообщений",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Message"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Ошибка сервера",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/login": {
             "post": {
                 "description": "Logs in an existing user",
@@ -397,6 +507,93 @@ const docTemplate = `{
                     },
                     "401": {
                         "description": "Unauthorized",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/messages/like": {
+            "put": {
+                "security": [
+                    {
+                        "Bearer": []
+                    },
+                    {
+                        "GoogleOAuth": []
+                    },
+                    {
+                        "Bearer": []
+                    },
+                    {
+                        "GoogleOAuth": []
+                    }
+                ],
+                "description": "Инвертирует статус лайка у сообщения пользователя (лайк/убрать лайк)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "messages"
+                ],
+                "summary": "Поставить или убрать лайк у сообщения",
+                "parameters": [
+                    {
+                        "description": "ID сообщения для лайка",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.LikeRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Статус лайка",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "boolean"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Некорректный запрос",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Сообщение не найдено",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Ошибка сервера",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -763,6 +960,14 @@ const docTemplate = `{
                 }
             }
         },
+        "handlers.LikeRequest": {
+            "type": "object",
+            "properties": {
+                "message_id": {
+                    "type": "integer"
+                }
+            }
+        },
         "models.ChangePasswordRequest": {
             "type": "object",
             "required": [
@@ -827,6 +1032,10 @@ const docTemplate = `{
                 },
                 "id": {
                     "type": "integer"
+                },
+                "isLiked": {
+                    "description": "liked gpt answer for user favs",
+                    "type": "boolean"
                 },
                 "prompt": {
                     "type": "string"

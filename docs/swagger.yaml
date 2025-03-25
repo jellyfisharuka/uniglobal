@@ -5,6 +5,11 @@ definitions:
       error:
         type: string
     type: object
+  handlers.LikeRequest:
+    properties:
+      message_id:
+        type: integer
+    type: object
   models.ChangePasswordRequest:
     properties:
       confirm_password:
@@ -49,6 +54,9 @@ definitions:
         type: string
       id:
         type: integer
+      isLiked:
+        description: liked gpt answer for user favs
+        type: boolean
       prompt:
         type: string
       senderID:
@@ -375,6 +383,73 @@ paths:
       summary: Get a chat by ID
       tags:
       - chats
+  /download-pdf:
+    get:
+      description: Принимает текст и возвращает PDF-файл для скачивания
+      parameters:
+      - description: Текст для генерации PDF
+        in: query
+        name: text
+        required: true
+        type: string
+      produces:
+      - application/pdf
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: file
+        "400":
+          description: 'Ошибка: текст не передан'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: 'Ошибка: не удалось создать PDF'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - Bearer: []
+      - GoogleOAuth: []
+      summary: Скачать PDF с текстом
+      tags:
+      - pdf
+  /favorites:
+    get:
+      description: Возвращает список сообщений, которые пользователь отметил как избранные
+        (лайкнул)
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Список избранных сообщений
+          schema:
+            items:
+              $ref: '#/definitions/models.Message'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Ошибка сервера
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - Bearer: []
+      - GoogleOAuth: []
+      - Bearer: []
+      - GoogleOAuth: []
+      summary: Получить избранные ответы
+      tags:
+      - favorites
   /login:
     post:
       consumes:
@@ -411,6 +486,60 @@ paths:
       summary: Login user
       tags:
       - Auth
+  /messages/like:
+    put:
+      consumes:
+      - application/json
+      description: Инвертирует статус лайка у сообщения пользователя (лайк/убрать
+        лайк)
+      parameters:
+      - description: ID сообщения для лайка
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.LikeRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Статус лайка
+          schema:
+            additionalProperties:
+              type: boolean
+            type: object
+        "400":
+          description: Некорректный запрос
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Сообщение не найдено
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Ошибка сервера
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - Bearer: []
+      - GoogleOAuth: []
+      - Bearer: []
+      - GoogleOAuth: []
+      summary: Поставить или убрать лайк у сообщения
+      tags:
+      - messages
   /send_checklist:
     post:
       description: Возвращает URL файла для указанного типа чек-листа и отправляет
