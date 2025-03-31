@@ -352,61 +352,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/download-pdf": {
-            "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    },
-                    {
-                        "GoogleOAuth": []
-                    }
-                ],
-                "description": "Принимает текст и возвращает PDF-файл для скачивания",
-                "produces": [
-                    "application/pdf"
-                ],
-                "tags": [
-                    "pdf"
-                ],
-                "summary": "Скачать PDF с текстом",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Текст для генерации PDF",
-                        "name": "text",
-                        "in": "query",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "file"
-                        }
-                    },
-                    "400": {
-                        "description": "Ошибка: текст не передан",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Ошибка: не удалось создать PDF",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            }
-        },
         "/favorites": {
             "get": {
                 "security": [

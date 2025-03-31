@@ -383,40 +383,6 @@ paths:
       summary: Get a chat by ID
       tags:
       - chats
-  /download-pdf:
-    get:
-      description: Принимает текст и возвращает PDF-файл для скачивания
-      parameters:
-      - description: Текст для генерации PDF
-        in: query
-        name: text
-        required: true
-        type: string
-      produces:
-      - application/pdf
-      responses:
-        "200":
-          description: OK
-          schema:
-            type: file
-        "400":
-          description: 'Ошибка: текст не передан'
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "500":
-          description: 'Ошибка: не удалось создать PDF'
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      security:
-      - Bearer: []
-      - GoogleOAuth: []
-      summary: Скачать PDF с текстом
-      tags:
-      - pdf
   /favorites:
     get:
       description: Возвращает список сообщений, которые пользователь отметил как избранные
