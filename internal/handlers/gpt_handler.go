@@ -2,19 +2,16 @@ package handlers
 
 import (
 	"context"
-	"fmt"
+	"errors"
 	"log"
-	"os"
-	"path/filepath"
+	"sync"
+	"uniglobal/internal/config"
 
-	//"fmt"
-	//"io"
-
-	//"os"
-
-	"github.com/joho/godotenv"
 	"github.com/sashabaranov/go-openai"
 )
+
+var chatHistories = make(map[string][]openai.ChatCompletionMessage)
+var mu sync.Mutex
 
 // @Security Bearer
 // @Summary GenerateContent
@@ -25,45 +22,71 @@ import (
 // @Param question body models.Question true "Question to get answer for"
 // @Success 200 {object} map[string]string
 // @Router /api/generate/gpt [post]
-func GeneratePythonHandler(ctx context.Context, prompt string) (string, error) {
-	answer, err := generateChatgpt(ctx, prompt)
+func GeneratePythonHandler(ctx context.Context, userID string, prompt string) (string, error) {
+	if userID == "" {
+		return "", errors.New("user ID is required")
+	}
+
+	mu.Lock()
+	if _, ok := chatHistories[userID]; !ok {
+		chatHistories[userID] = []openai.ChatCompletionMessage{}
+	}
+	history := chatHistories[userID]
+	mu.Unlock()
+
+	answer, err := generateChatgpt(ctx, prompt, history)
 	if err != nil {
+		log.Printf("[Generate] Error generating GPT response: %v", err)
 		return "", err
 	}
+
+	mu.Lock()
+	chatHistories[userID] = append(history,
+		openai.ChatCompletionMessage{
+			Role:    "user",
+			Content: prompt,
+		},
+		openai.ChatCompletionMessage{
+			Role:    "assistant",
+			Content: answer,
+		},
+	)
+	mu.Unlock()
+
 	return answer, nil
 }
 
-func generateChatgpt(ctx context.Context, question string) (string, error) {
-	envPath := filepath.Join("..", "pkg", ".env") 
-	err := godotenv.Load(envPath)
-    if err != nil {
-        log.Fatal("Ошибка при загрузке .env файла")
-    }
-	apiKey := os.Getenv("OPENAI_API_KEY")
+func generateChatgpt(ctx context.Context, question string, history []openai.ChatCompletionMessage) (string, error) {
+	envConfig := config.GetEnvConfig()
+	apiKey := envConfig.OpenAIAPIKey
+
 	if apiKey == "" {
-		log.Fatal("OPENAI_API_KEY не установлен")
+		log.Fatal("OPENAI_API_KEY not set in configuration")
 	}
-	fmt.Println(apiKey)
+
 	client := openai.NewClient(apiKey)
 
+	history = append(history, openai.ChatCompletionMessage{
+		Role:    "user",
+		Content: question,
+	})
+
 	request := openai.ChatCompletionRequest{
-		Model: "ft:gpt-4o-mini-2024-07-18:personal::AZePBB1d", 
-		Messages: []openai.ChatCompletionMessage{
-			{
-				Role:    "user", 
-				Content: question,
-			},
-		},
-		Temperature: 0.7, 
+		Model:       "ft:gpt-4o-mini-2024-07-18:personal::AZePBB1d", 
+		Messages:    history,
+		Temperature: 0.7,
 	}
 
 	response, err := client.CreateChatCompletion(ctx, request)
 	if err != nil {
-		log.Printf("Error while calling OpenAI: %v", err)
+		log.Printf("[OpenAI] Error while calling OpenAI: %v", err)
 		return "", err
 	}
 
-	// Возвращаем текст ответа
+	if len(response.Choices) == 0 {
+		log.Println("[OpenAI] No choices returned in response")
+		return "", errors.New("no response from OpenAI")
+	}
+
 	return response.Choices[0].Message.Content, nil
 }
-

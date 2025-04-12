@@ -25,6 +25,5 @@ type Message struct {
 }
 
 type MessageSwagger struct {
-    ChatID  int    `json:"chatID"`  // The ID of the chat
     Prompt  string `json:"prompt"`  // The message content (input from user)
 }

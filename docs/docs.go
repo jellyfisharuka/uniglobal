@@ -57,19 +57,16 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/generate/motivational_letter": {
+        "/api/generate/letter": {
             "post": {
                 "security": [
                     {
                         "Bearer": []
-                    },
-                    {
-                        "GoogleOAuth": []
                     }
                 ],
-                "description": "Generate a motivational letter based on user data",
+                "description": "Generate a motivational or recommendation letter based on user data",
                 "consumes": [
-                    "application/x-www-form-urlencoded"
+                    "application/json"
                 ],
                 "produces": [
                     "application/json"
@@ -77,28 +74,16 @@ const docTemplate = `{
                 "tags": [
                     "letters"
                 ],
-                "summary": "Create Motivational Letter",
+                "summary": "Generate Letter",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "Age",
-                        "name": "age",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "University",
-                        "name": "university",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Country",
-                        "name": "country",
-                        "in": "formData",
-                        "required": true
+                        "description": "Letter generation request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.LetterRequest"
+                        }
                     }
                 ],
                 "responses": {
@@ -106,24 +91,22 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "additionalProperties": true
                         }
                     }
                 }
             }
         },
-        "/api/generate/recommendation_letter": {
-            "post": {
+        "/api/letters": {
+            "get": {
                 "security": [
                     {
                         "Bearer": []
                     }
                 ],
-                "description": "Generate a basic recommendation letter based on provided user data",
+                "description": "Retrieve all letters for the current user",
                 "consumes": [
-                    "application/x-www-form-urlencoded"
+                    "application/json"
                 ],
                 "produces": [
                     "application/json"
@@ -131,27 +114,50 @@ const docTemplate = `{
                 "tags": [
                     "letters"
                 ],
-                "summary": "Create Recommendation Letter",
+                "summary": "Get user's letters",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Letter"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/letters/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "description": "Retrieve a letter by its ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "letters"
+                ],
+                "summary": "Get letter by ID",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Relationship with Candidate",
-                        "name": "relationship",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Key Achievements of Candidate",
-                        "name": "achievements",
-                        "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Key Qualities of Candidate",
-                        "name": "qualities",
-                        "in": "formData",
+                        "description": "Letter ID",
+                        "name": "id",
+                        "in": "path",
                         "required": true
                     }
                 ],
@@ -159,10 +165,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/models.Letter"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     }
                 }
@@ -265,6 +280,13 @@ const docTemplate = `{
                 ],
                 "summary": "Send a message to a chat",
                 "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Chat ID",
+                        "name": "chatID",
+                        "in": "path",
+                        "required": true
+                    },
                     {
                         "description": "Message content",
                         "name": "message",
@@ -964,6 +986,33 @@ const docTemplate = `{
                 }
             }
         },
+        "handlers.LetterRequest": {
+            "type": "object",
+            "required": [
+                "letterType",
+                "program"
+            ],
+            "properties": {
+                "achievements": {
+                    "type": "string"
+                },
+                "goals": {
+                    "type": "string"
+                },
+                "letterType": {
+                    "type": "string"
+                },
+                "program": {
+                    "type": "string"
+                },
+                "skills": {
+                    "type": "string"
+                },
+                "subjects": {
+                    "type": "string"
+                }
+            }
+        },
         "handlers.LikeRequest": {
             "type": "object",
             "properties": {
@@ -1005,6 +1054,44 @@ const docTemplate = `{
                     }
                 },
                 "userID": {
+                    "type": "integer"
+                }
+            }
+        },
+        "models.Letter": {
+            "type": "object",
+            "properties": {
+                "achievements": {
+                    "type": "string"
+                },
+                "content": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "goals": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "letter_type": {
+                    "type": "string"
+                },
+                "program": {
+                    "type": "string"
+                },
+                "skills": {
+                    "type": "string"
+                },
+                "subjects": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "user_id": {
                     "type": "integer"
                 }
             }
@@ -1052,10 +1139,6 @@ const docTemplate = `{
         "models.MessageSwagger": {
             "type": "object",
             "properties": {
-                "chatID": {
-                    "description": "The ID of the chat",
-                    "type": "integer"
-                },
                 "prompt": {
                     "description": "The message content (input from user)",
                     "type": "string"

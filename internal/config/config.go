@@ -10,6 +10,8 @@ import (
 
 type EnvConfig struct {
 	DbDSN string
+    OpenAIAPIKey string
+	
 }
 
 type GmailConfig struct {
@@ -27,8 +29,8 @@ func LoadEnvConfig(envPath string) error {
 		log.Println("Error loading .env file, falling back to system environment variables")
 	}
 
-	//envConfig.DbDSN = os.Getenv("DB")
 	envConfig.DbDSN = os.Getenv("DB")
+	envConfig.OpenAIAPIKey = os.Getenv("OPENAI_API_KEY")
 	return nil
 }
 

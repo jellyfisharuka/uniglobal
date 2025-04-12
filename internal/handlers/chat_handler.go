@@ -1,10 +1,11 @@
 package handlers
 
 import (
-	"uniglobal/internal/models"
-	"uniglobal/internal/repository"
+	"fmt"
 	"net/http"
 	"strconv"
+	"uniglobal/internal/models"
+	"uniglobal/internal/repository"
 
 	"github.com/gin-gonic/gin"
 )
@@ -76,13 +77,12 @@ func (h *ChatHandler) GetChat(c *gin.Context) {
 }
 
 // @Security Bearer
-// SendMessage godoc
 // @Summary Send a message to a chat
 // @Description Send a message to a specified chat, and generate an AI response
 // @Tags chats
 // @Accept json
 // @Produce json
-// Param chatID path int true "Chat ID" //////
+// @Param chatID path int true "Chat ID"
 // @Param message body models.MessageSwagger true "Message content"
 // @Success 201 {object} models.MessageSwagger "Message sent successfully"
 // @Failure 400 {object} ErrorResponse "Invalid input"
@@ -90,37 +90,46 @@ func (h *ChatHandler) GetChat(c *gin.Context) {
 // @Failure 500 {object} ErrorResponse "Internal server error"
 // @Router /chats/{chatID}/messages [post]
 func (h *ChatHandler) SendMessage(c *gin.Context) {
-    var message models.Message
+	var message models.Message
 
-    if err := c.ShouldBindJSON(&message); err != nil {
-        c.JSON(http.StatusBadRequest, gin.H{"error": "Некорректный JSON", "details": err.Error()})
-        return
-    }
+	chatIDParam := c.Param("chatID")
+	chatID, err := strconv.Atoi(chatIDParam)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid chat ID"})
+		return
+	}
 
-    userID, exists := c.Get("ID")
-    if !exists {
-        c.JSON(http.StatusUnauthorized, gin.H{"error": "Пользователь не аутентифицирован"})
-        return
-    }
+	if err := c.ShouldBindJSON(&message); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Некорректный JSON", "details": err.Error()})
+		return
+	}
 
-    message.SenderID = uint(userID.(int))
+	userID, exists := c.Get("ID")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Пользователь не аутентифицирован"})
+		return
+	}
 
-    // Передаём `message.Prompt` напрямую, а не пытаемся парсить JSON второй раз
-    generatedAnswer, err := GeneratePythonHandler(c.Request.Context(), message.Prompt)
-    if err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка генерации ответа", "details": err.Error()})
-        return
-    }
+	message.SenderID = uint(userID.(int))
+	message.ChatID = uint(chatID)
 
-    message.Answer = generatedAnswer
+	userIDStr := fmt.Sprintf("%d", userID)
+	generatedAnswer, err := GeneratePythonHandler(c.Request.Context(), userIDStr, message.Prompt)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка генерации ответа", "details": err.Error()})
+		return
+	}
 
-    if err := h.Repo.AddMessageToChat(&message); err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка сохранения сообщения"})
-        return
-    }
+	message.Answer = generatedAnswer
 
-    c.JSON(http.StatusCreated, message)
+	if err := h.Repo.AddMessageToChat(&message); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка сохранения сообщения"})
+		return
+	}
+
+	c.JSON(http.StatusCreated, message)
 }
+
 
 
 // @Security Bearer
