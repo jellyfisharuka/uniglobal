@@ -92,6 +92,13 @@ pnpm install
 pnpm dev
 ```
 
+On the DOCKER: 
+1. please download the docker
+2. Write this command in terminal:
+   ```bash
+    docker-compose up --build
+   ```
+
 The application will be available at http://localhost:3000
 
 ## API Documentation
