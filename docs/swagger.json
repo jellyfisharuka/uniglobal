@@ -1,7 +1,7 @@
 {
     "swagger": "2.0",
     "info": {
-        "description": "This is a sample server.",
+        "description": "Your AI-powered guide to studying abroad. Get personalized assistance with university selection, documentation, and application process.",
         "title": "UniGlobal",
         "contact": {},
         "version": "1.0"
@@ -1147,18 +1147,6 @@
                 }
             }
         },
-        "models.Role": {
-            "type": "object",
-            "properties": {
-                "id": {
-                    "type": "integer"
-                },
-                "name": {
-                    "description": "\"admin\", \"user\"",
-                    "type": "string"
-                }
-            }
-        },
         "models.SignupSwagger": {
             "type": "object",
             "properties": {
@@ -1224,6 +1212,7 @@
             "type": "object",
             "properties": {
                 "chats": {
+                    "description": "RoleID          int\nRole            Role",
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/models.Chat"
@@ -1258,12 +1247,6 @@
                 },
                 "photo": {
                     "type": "string"
-                },
-                "role": {
-                    "$ref": "#/definitions/models.Role"
-                },
-                "roleID": {
-                    "type": "integer"
                 },
                 "telephone": {
                     "type": "string"

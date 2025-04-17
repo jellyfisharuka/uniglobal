@@ -116,14 +116,6 @@ definitions:
       question:
         type: string
     type: object
-  models.Role:
-    properties:
-      id:
-        type: integer
-      name:
-        description: '"admin", "user"'
-        type: string
-    type: object
   models.SignupSwagger:
     properties:
       city:
@@ -169,6 +161,9 @@ definitions:
   models.User:
     properties:
       chats:
+        description: |-
+          RoleID          int
+          Role            Role
         items:
           $ref: '#/definitions/models.Chat'
         type: array
@@ -192,10 +187,6 @@ definitions:
         type: string
       photo:
         type: string
-      role:
-        $ref: '#/definitions/models.Role'
-      roleID:
-        type: integer
       telephone:
         type: string
       updatedAt:
@@ -206,7 +197,8 @@ definitions:
 host: localhost:8080
 info:
   contact: {}
-  description: This is a sample server.
+  description: Your AI-powered guide to studying abroad. Get personalized assistance
+    with university selection, documentation, and application process.
   title: UniGlobal
   version: "1.0"
 paths:

@@ -19,8 +19,8 @@ type User struct {
 	City            string
 	Photo           *string
 	Email           string
-	RoleID          int
-	Role            Role
+	//RoleID          int
+	//Role            Role
 	Chats           []Chat
 }
 type SignupSwagger struct {

@@ -1,6 +1,6 @@
 // @title UniGlobal
 // @version 1.0
-// @description This is a sample server.
+// @description Your AI-powered guide to studying abroad. Get personalized assistance with university selection, documentation, and application process.
 // @securityDefinitions.apiKey Bearer
 // @in header
 // @name Authorization

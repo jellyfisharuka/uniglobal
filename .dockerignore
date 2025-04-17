@@ -1,0 +1,11 @@
+.git
+.github
+.gitignore
+README.md
+*.md
+**/node_modules
+**/npm-debug.log
+.DS_Store
+*.pprof
+**/tmp
+**/temp

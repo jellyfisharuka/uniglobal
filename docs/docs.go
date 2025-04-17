@@ -1153,18 +1153,6 @@ const docTemplate = `{
                 }
             }
         },
-        "models.Role": {
-            "type": "object",
-            "properties": {
-                "id": {
-                    "type": "integer"
-                },
-                "name": {
-                    "description": "\"admin\", \"user\"",
-                    "type": "string"
-                }
-            }
-        },
         "models.SignupSwagger": {
             "type": "object",
             "properties": {
@@ -1230,6 +1218,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "chats": {
+                    "description": "RoleID          int\nRole            Role",
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/models.Chat"
@@ -1265,12 +1254,6 @@ const docTemplate = `{
                 "photo": {
                     "type": "string"
                 },
-                "role": {
-                    "$ref": "#/definitions/models.Role"
-                },
-                "roleID": {
-                    "type": "integer"
-                },
                 "telephone": {
                     "type": "string"
                 },
@@ -1299,7 +1282,7 @@ var SwaggerInfo = &swag.Spec{
 	BasePath:         "/",
 	Schemes:          []string{},
 	Title:            "UniGlobal",
-	Description:      "This is a sample server.",
+	Description:      "Your AI-powered guide to studying abroad. Get personalized assistance with university selection, documentation, and application process.",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

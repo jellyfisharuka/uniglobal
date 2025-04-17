@@ -72,21 +72,21 @@ func (a *App) initDeps(ctx context.Context) error {
 
 	return nil
 }
+
 func (a *App) Run() error {
-	//address := "0.0.0.0:8080"
-	address := "localhost:8080"
+	address := "0.0.0.0:8080"
 	log.Printf("HTTP server is running on %s", address)
 	go func() {
-        log.Println("Starting pprof server on :6060")
-        log.Println(http.ListenAndServe("localhost:6060", nil)) // Порт для pprof
-    }()
-	//err := http.ListenAndServe(address, a.router)
-	err:= a.router.Run(address)
+		log.Println("Starting pprof server on :6060")
+		log.Println(http.ListenAndServe("0.0.0.0:6060", nil))
+	}()
+	err := a.router.Run(address)
 	if err != nil {
 		return err
 	}
 	return nil
 }
+
 func CORSMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")

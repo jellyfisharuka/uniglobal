@@ -161,11 +161,11 @@ func AdminOnly() gin.HandlerFunc {
 			return
 		}
 
-		if user.Role.Name != "admin" {
+		/*if user.Role.Name != "admin" {
 			c.JSON(http.StatusForbidden, gin.H{"error": "Access denied"})
 			c.Abort()
 			return
-		}
+		}*/
 
 		c.Next()
 	}
@@ -185,11 +185,11 @@ func SignupUser(db *gorm.DB, newUser models.User) error {
     if !isValidPhoneNumber(newUser.Telephone) {
         return fmt.Errorf("invalid phone number format")
     }
-	var userRole models.Role
+	//var userRole models.Role
 	//if err := db.Where("name = ?", "user").First(&userRole).Error; err != nil {
 	//	return fmt.Errorf("Default role not found")
 	//}
-	if newUser.Username=="admin" {
+	/*if newUser.Username=="admin" {
       if err:=db.Where("name=?","admin").First(&userRole).Error; err!=nil {
 		return fmt.Errorf("admin role not found")
 	  }
@@ -199,7 +199,7 @@ func SignupUser(db *gorm.DB, newUser models.User) error {
 		}
 	}
 	
-	newUser.RoleID = userRole.ID
+	newUser.RoleID = userRole.ID */
 
 	hashedPassword, err := hashPassword(newUser.Password)
 	if err != nil {

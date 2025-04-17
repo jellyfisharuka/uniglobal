@@ -1,0 +1,40 @@
+services:
+  postgres:
+    image: postgres:15
+    container_name: uni_db
+    restart: always
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: chatbot
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - uni_network
+
+  backend:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    container_name: uni_backend
+    restart: always
+    depends_on:
+      - postgres
+    environment:
+      - DB=host=postgres user=root password=root dbname=chatbot port=5432 sslmode=disable
+      - PORT=8080
+      - FRONTEND_URL=http://frontend:3000
+    ports:
+      - "8080:8080"
+    networks:
+      - uni_network
+
+
+networks:
+  uni_network:
+    driver: bridge
+
+volumes:
+  postgres_data:
