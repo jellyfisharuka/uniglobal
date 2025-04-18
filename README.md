@@ -40,23 +40,60 @@ Uni Global is a comprehensive platform designed to help students navigate the co
 
 ```
 uni-global/
-├── backend/               # Go backend code
-│   ├── cmd/               # Application entry points
-│   ├── internal/          # Internal packages
-│   │   ├── db/            # Database connection
-│   │   ├── handlers/      # API handlers
-│   │   ├── middleware/    # Middleware components
-│   │   ├── models/        # Data models
-│   │   └── repository/    # Data access layer
-│   └── pkg/               # Shared packages
-├── frontend/              # Next.js frontend code
-│   ├── app/               # Next.js app router
-│   ├── components/        # Reusable UI components
-│   ├── lib/               # Utility functions
-│   ├── public/            # Static assets
-│   ├── services/          # API client services
-│   └── stores/            # State management
-└── README.md              # This file
+├── backend/                   # Go backend code
+│   ├── cmd/                   # Application entry points
+│   ├── docs/                  # API documentation (Swagger)
+│   ├── internal/              # Internal packages
+│   │   ├── app/               # Application initialization
+│   │   ├── auth/              # Authentication logic
+│   │   ├── config/            # Configuration
+│   │   ├── db/                # Database connection
+│   │   ├── gooogle/           # Google API integration
+│   │   ├── handlers/          # API handlers
+│   │   ├── models/            # Data models
+│   │   ├── repository/        # Data access layer
+│   │   ├── router/            # HTTP routing
+│   │   ├── services/          # Business logic
+│   │   └── utils/             # Utility functions
+│   ├── pkg/                   # Shared packages
+│   └── static/                # Static files
+│       └── avatars/           # User avatars
+├── frontend/                  # Next.js frontend code
+│   ├── app/                   # Next.js app router
+│   │   ├── (auth)/            # Authentication routes
+│   │   │   ├── login/         # Login page
+│   │   │   ├── logout/        # Logout functionality
+│   │   │   └── register/      # Registration page
+│   │   ├── (main)/            # Main content routes
+│   │   │   └── about/         # About page
+│   │   └── dashboard/         # Dashboard routes
+│   │       ├── chats/         # Chat feature
+│   │       │   └── [id]/      # Individual chat view
+│   │       ├── faq/           # FAQ page
+│   │       ├── favorites/     # User favorites
+│   │       ├── letters/       # Letter generation feature
+│   │       │   └── results/   # Letter results
+│   │       │       └── [id]/  # Individual letter result
+│   │       └── profile/       # User profile
+│   ├── components/            # Reusable UI components
+│   │   ├── chat/              # Chat components
+│   │   ├── home/              # Home page components
+│   │   ├── letters/           # Letter creation components
+│   │   ├── settings/          # Settings components
+│   │   └── ui/                # UI component library
+│   ├── constants/             # Constants and static data
+│   ├── lib/                   # Utility functions
+│   ├── public/                # Static assets
+│   │   ├── achievements/      # Achievement images
+│   │   ├── checklist/         # Checklist images
+│   │   ├── features/          # Feature icons
+│   │   └── icons/             # UI icons
+│   ├── schemas/               # Validation schemas
+│   ├── services/              # API client services
+│   ├── stores/                # State management
+│   └── types/                 # TypeScript type definitions
+├── docker-compose.yml         # Docker configuration
+└── README.md                  # Project documentation
 ```
 
 ## Getting Started
@@ -91,13 +128,6 @@ cd frontend
 pnpm install
 pnpm dev
 ```
-
-On the DOCKER: 
-1. please download the docker
-2. Write this command in terminal:
-   ```bash
-    docker-compose up --build
-   ```
 
 The application will be available at http://localhost:3000
 
