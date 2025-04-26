@@ -21,7 +21,7 @@ COPY --from=builder /app/internal/config ./internal/config
 COPY --from=builder /app/docs ./docs
 COPY --from=builder /app/static ./static
 
-ENV DB="host=postgres user=root password=root dbname=chatbot port=5432 sslmode=disable"
+ENV DB="host=dpg-d06btjjuibrs73ee7r3g-a user=root password=KLbOmqsrOKgkxneVf5jAS0mWYuHKQbl1 dbname=chatbot_k3qg port=5432 sslmode=disable"
 ENV PORT=8080
 ENV FRONTEND_URL="http://frontend:3000"
 

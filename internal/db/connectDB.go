@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"uniglobal/internal/config"
+	//"uniglobal/internal/config"
 	"uniglobal/internal/models"
 
 	"time"
@@ -25,7 +25,8 @@ var (
 func ConnectDB() {
 	var err error
 	//dsn := os.Getenv("DB")
-	dsn := config.GetEnvConfig().DbDSN
+	//dsn := config.GetEnvConfig().DbDSN
+	dsn := "postgresql://root:KLbOmqsrOKgkxneVf5jAS0mWYuHKQbl1@dpg-d06btjjuibrs73ee7r3g-a.oregon-postgres.render.com/chatbot_k3qg"
 	DB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		panic("Failed to connect to DB")
