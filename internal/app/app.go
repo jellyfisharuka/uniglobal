@@ -106,11 +106,13 @@ func CORSMiddleware() gin.HandlerFunc {
 }
 
 func (a *App) initRouter(_ context.Context) error {
-	a.router.Use(CORSMiddleware())
-	store := cookie.NewStore([]byte("secret"))
-	a.router = gin.Default()
-	//a.router.Use(CORSMiddleware())
-	a.router.Use(sessions.Sessions("mysession", store))
-	router.SetupRouter(a.router)
-	return nil
+    a.router = gin.Default() // СНАЧАЛА создаём роутер
+
+    a.router.Use(CORSMiddleware()) // потом уже вешаем мидлварки
+    store := cookie.NewStore([]byte("secret"))
+    a.router.Use(sessions.Sessions("mysession", store))
+
+    router.SetupRouter(a.router)
+
+    return nil
 }
