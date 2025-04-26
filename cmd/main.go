@@ -14,12 +14,12 @@
 package main
 
 import (
-	_ "uniglobal/docs"
-	"uniglobal/internal/app"
 	"context"
+	"fmt"
 	"log"
 	"sync"
-
+	_ "uniglobal/docs"
+	"uniglobal/internal/app"
 )
 
 // swag init
@@ -28,6 +28,7 @@ func main() {
 	var wg sync.WaitGroup
 	ctx := context.Background()
 	wg.Add(1)
+	fmt.Println("test my server")
 	go func() {
 		defer wg.Done()
 	   a, err := app.NewApp(ctx)
