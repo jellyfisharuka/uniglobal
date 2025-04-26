@@ -93,6 +93,8 @@ func CORSMiddleware() gin.HandlerFunc {
 		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
 		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Authorization, Accept, X-Requested-With")
 		c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT, PATCH, DELETE")
+		c.Writer.Header().Set("Vary", "Origin")
+
 
 		if c.Request.Method == "OPTIONS" {
 			c.AbortWithStatus(http.StatusNoContent)
@@ -104,9 +106,10 @@ func CORSMiddleware() gin.HandlerFunc {
 }
 
 func (a *App) initRouter(_ context.Context) error {
+	a.router.Use(CORSMiddleware())
 	store := cookie.NewStore([]byte("secret"))
 	a.router = gin.Default()
-	a.router.Use(CORSMiddleware())
+	//a.router.Use(CORSMiddleware())
 	a.router.Use(sessions.Sessions("mysession", store))
 	router.SetupRouter(a.router)
 	return nil
