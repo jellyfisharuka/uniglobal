@@ -104,6 +104,7 @@ func SignupHandler(c *gin.Context) {
 	case utils.ErrRoleNotFound:
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 	default:
+		fmt.Println(err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": utils.ErrFailedToCreateUser.Error()})
 	}
 }

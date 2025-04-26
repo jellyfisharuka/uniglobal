@@ -1,10 +1,11 @@
 package handlers
 
 import (
-	"uniglobal/internal/db"
-	"uniglobal/internal/models"
 	"fmt"
 	"net/http"
+	"time"
+	"uniglobal/internal/db"
+	"uniglobal/internal/models"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -97,6 +98,8 @@ func GenerateLetterHandler(c *gin.Context, llm *googleai.GoogleAI) {
 	})
 }
 
+var currentDate = time.Now().Format("January 2, 2006")
+
 func createMotivationalLetterPrompt(user models.User, request LetterRequest) string {
 	return fmt.Sprintf(`Generate a complete motivational letter for university admission written BY THE STUDENT with the following information:
 Name: %s %s
@@ -108,8 +111,9 @@ Subjects of interest: %s
 Achievements: %s
 Skills: %s
 Future goals: %s
+Date: %s
 
-Format the letter with proper headers including the student's name, contact information, and date at the top, followed by university information and salutation.
+Format the letter with proper headers including the student's name, contact information, and date at the top, followed by university name.
 
 The letter should be formal and professional, written from the student's first-person perspective, highlighting why the student is a good fit for the program.
 
@@ -124,7 +128,8 @@ Write the complete final version of the letter without placeholders or instructi
 		request.Subjects,
 		request.Achievements,
 		request.Skills,
-		request.Goals)
+		request.Goals,
+		currentDate)
 }
 
 func createRecommendationLetterPrompt(user models.User, request LetterRequest) string {
@@ -138,8 +143,9 @@ Academic subjects: %s
 Key achievements: %s
 Notable skills: %s
 Career goals: %s
+Date: %s
 
-Format the letter with proper headers including the student's name, contact information, and date at the top, followed by university information and salutation.
+Format the letter with proper headers including the student's name, contact information, and date at the top, followed by university name.
 
 The letter should be formal and professional, written from the student's first-person perspective, where the student recommends themselves for the program.
 
@@ -154,7 +160,8 @@ Write the complete final version of the letter without placeholders or instructi
 		request.Subjects,
 		request.Achievements,
 		request.Skills,
-		request.Goals)
+		request.Goals,
+	currentDate)
 }
 
 // @Security Bearer

@@ -30,6 +30,9 @@ services:
       - "8080:8080"
     networks:
       - uni_network
+    dns:
+      - 8.8.8.8
+      - 1.1.1.1
 
 
 networks:

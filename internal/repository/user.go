@@ -26,12 +26,6 @@ func (u *UserRepository) UpdateUserFields(userID uint, updates models.UpdateUser
 		return utils.ErrInvalidPhoneNumber
 	}
 
-	if updates.City != nil {
-		if _, err := utils.IsValidCity(*updates.City); err != nil {
-			return utils.ErrInvalidCity
-		}
-	}
-
 	if updates.Gender != nil {
 		if err := utils.ValidateAndSetGender(updates.Gender, &updates.Photo); err != nil {
 			return err
