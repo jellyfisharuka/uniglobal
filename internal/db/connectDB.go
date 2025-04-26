@@ -37,6 +37,7 @@ func ConnectDB() {
 	if err != nil {
 		panic("Failed to migrate DB schemas")
 	}
+	
 
 	seedRoles()
 

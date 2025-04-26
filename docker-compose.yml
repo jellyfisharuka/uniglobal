@@ -1,19 +1,4 @@
 services:
-  postgres:
-    image: postgres:15
-    container_name: uni_db
-    restart: always
-    environment:
-      POSTGRES_USER: root
-      POSTGRES_PASSWORD: KLbOmqsrOKgkxneVf5jAS0mWYuHKQbl1
-      POSTGRES_DB: chatbot_k3qg
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    networks:
-      - uni_network
-
   backend:
     build:
       context: ./
@@ -21,8 +6,6 @@ services:
     image: uni_backend:latest
     container_name: uni_backend
     restart: always
-    depends_on:
-      - postgres
     environment:
       - DB=host=dpg-d06btjjuibrs73ee7r3g-a user=root password=KLbOmqsrOKgkxneVf5jAS0mWYuHKQbl1 dbname=chatbot_k3qg port=5432 sslmode=disable
       - PORT=8080
@@ -35,10 +18,6 @@ services:
       - 8.8.8.8
       - 1.1.1.1
 
-
 networks:
   uni_network:
     driver: bridge
-
-volumes:
-  postgres_data:
