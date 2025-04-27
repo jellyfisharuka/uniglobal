@@ -162,7 +162,7 @@ func (h *UserHandler) GetUserInfoByID(c *gin.Context) {
 		Telephone: user.Telephone,
 		Gender:    *user.Gender,
 		City:      user.City,
-		Photo:     *user.Photo,
+		//Photo:     *user.Photo,
 		Email:     user.Email,
 	}
 	
