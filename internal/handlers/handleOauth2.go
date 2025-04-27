@@ -1,15 +1,16 @@
 package handlers
 
 import (
-	"uniglobal/internal/auth"
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
-    "uniglobal/internal/gooogle"
-	"github.com/gin-gonic/gin"
+	"uniglobal/internal/auth"
+	"uniglobal/internal/gooogle"
 	"github.com/gin-contrib/sessions"
+	"github.com/gin-gonic/gin"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 	"google.golang.org/api/gmail/v1"
@@ -17,11 +18,19 @@ import (
 )
 var Oauth2Config *oauth2.Config
 
-func InitConfig() {
+func InitConfig() error {
+	clientID := os.Getenv("GOOGLE_CLIENT_ID")
+	clientSecret := os.Getenv("GOOGLE_CLIENT_SECRET")
+	redirectURL := os.Getenv("GOOGLE_REDIRECT_URI")
+
+	if clientID == "" || clientSecret == "" || redirectURL == "" {
+		return errors.New("one or more required environment variables are missing")
+	}
+
 	Oauth2Config = &oauth2.Config{
-		ClientID:     os.Getenv("GOOGLE_CLIENT_ID"),
-		ClientSecret: os.Getenv("GOOGLE_CLIENT_SECRET"),
-		RedirectURL:  os.Getenv("GOOGLE_REDIRECT_URI"),
+		ClientID:     clientID,
+		ClientSecret: clientSecret,
+		RedirectURL:  redirectURL,
 		Scopes: []string{
 			"https://www.googleapis.com/auth/userinfo.email",
 			"https://www.googleapis.com/auth/userinfo.profile",
@@ -29,6 +38,8 @@ func InitConfig() {
 		},
 		Endpoint: google.Endpoint,
 	}
+
+	return nil
 }
 
 func HandleOAuth2Callback(code string, c *gin.Context) (*oauth2.Token, error) {

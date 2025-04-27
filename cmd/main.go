@@ -28,7 +28,11 @@ import (
 func main() {
 	var wg sync.WaitGroup
 	ctx := context.Background()
-	handlers.InitConfig()
+	if err := InitConfig(); err != nil {
+		log.Fatalf("Error initializing config: %v", err)
+	} else {
+		log.Println("OAuth2 config initialized successfully")
+	}
 	wg.Add(1)
 	fmt.Println("test my server")
 	go func() {
