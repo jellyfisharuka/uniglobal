@@ -17,17 +17,17 @@ import (
 )
 var Oauth2Config *oauth2.Config
 
- func InitConfig() {
-	b, err := os.ReadFile("internal/config/gmail.json")
-	if err != nil {
-		log.Fatalf("Unable to read client secret file: %v", err)
-	}
-
-	Oauth2Config, err = google.ConfigFromJSON(b, gmail.GmailReadonlyScope,
-	"https://www.googleapis.com/auth/userinfo.email",
-		"https://www.googleapis.com/auth/userinfo.profile")
-	if err != nil {
-		log.Fatalf("Unable to parse client secret file to config: %v", err)
+func InitConfig() {
+	Oauth2Config = &oauth2.Config{
+		ClientID:     os.Getenv("GOOGLE_CLIENT_ID"),
+		ClientSecret: os.Getenv("GOOGLE_CLIENT_SECRET"),
+		RedirectURL:  os.Getenv("GOOGLE_REDIRECT_URI"),
+		Scopes: []string{
+			"https://www.googleapis.com/auth/userinfo.email",
+			"https://www.googleapis.com/auth/userinfo.profile",
+			gmail.GmailReadonlyScope,
+		},
+		Endpoint: google.Endpoint,
 	}
 }
 
