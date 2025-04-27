@@ -20,6 +20,7 @@ import (
 	"sync"
 	_ "uniglobal/docs"
 	"uniglobal/internal/app"
+	"uniglobal/internal/handlers"
 )
 
 // swag init
@@ -27,6 +28,7 @@ import (
 func main() {
 	var wg sync.WaitGroup
 	ctx := context.Background()
+	handlers.InitConfig()
 	wg.Add(1)
 	fmt.Println("test my server")
 	go func() {

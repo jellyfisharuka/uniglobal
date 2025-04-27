@@ -91,14 +91,13 @@ func (h *ChatHandler) GetChat(c *gin.Context) {
 // @Router /chats/{chatID}/messages [post]
 func (h *ChatHandler) SendMessage(c *gin.Context) {
 	var message models.Message
-
+    fmt.Println("send message")
 	chatIDParam := c.Param("chatID")
 	chatID, err := strconv.Atoi(chatIDParam)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid chat ID"})
 		return
 	}
-    fmt.Println("chatid User", chatID)
 	if err := c.ShouldBindJSON(&message); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Некорректный JSON", "details": err.Error()})
 		return
@@ -121,7 +120,6 @@ func (h *ChatHandler) SendMessage(c *gin.Context) {
 	}
 
 	message.Answer = generatedAnswer
-    fmt.Println("senderId", userID)
 	if err := h.Repo.AddMessageToChat(&message); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка сохранения сообщения"})
 		return
