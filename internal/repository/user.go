@@ -26,11 +26,11 @@ func (u *UserRepository) UpdateUserFields(userID uint, updates models.UpdateUser
 		return utils.ErrInvalidPhoneNumber
 	}
 
-	if updates.Gender != nil {
-		if _, err := utils.IsValidGender(*updates.Gender); err != nil {
-			return utils.ErrInvalidGender
-		}
-	}
+	//if updates.Gender != nil {
+	//	if _, err := utils.IsValidGender(*updates.Gender); err != nil {
+	//		return utils.ErrInvalidGender
+	//	}
+	//}
 
 	return u.DB.Model(&models.User{}).Where("id = ?", userID).Updates(updates).Error
 }

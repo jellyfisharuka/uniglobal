@@ -18,7 +18,7 @@ import (
 var Oauth2Config *oauth2.Config
 
  func InitConfig() {
-	b, err := os.ReadFile("gmail.json")
+	b, err := os.ReadFile("internal/config/gmail.json")
 	if err != nil {
 		log.Fatalf("Unable to read client secret file: %v", err)
 	}
@@ -33,7 +33,7 @@ var Oauth2Config *oauth2.Config
 
 func HandleOAuth2Callback(code string, c *gin.Context) (*oauth2.Token, error) {
 	if Oauth2Config== nil {
-        return nil, fmt.Errorf("oauth2Config is not initialized")
+        return nil, fmt.Errorf("oauth2Config is not initialized in handleOath")
     }
 	tok, err := Oauth2Config.Exchange(context.Background(), code)
 	if err != nil {
