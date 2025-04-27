@@ -74,7 +74,12 @@ func (a *App) initDeps(ctx context.Context) error {
 }
 
 func (a *App) Run() error {
-	address := "0.0.0.0:8080"
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080" // локально будет 8080
+	}
+	address := "0.0.0.0:" + port
+	//address := "0.0.0.0:8080"
 	log.Printf("HTTP server is running on %s", address)
 	go func() {
 		log.Println("Starting pprof server on :6060")
@@ -93,8 +98,13 @@ func CORSMiddleware() gin.HandlerFunc {
 			"https://uniglobal-front.onrender.com": true,
 			"http://localhost:3000": true, // для локальной разработки
 		}
-
+        
 		origin := c.Request.Header.Get("Origin")
+        
+		method := c.Request.Method
+        path := c.Request.URL.Path
+
+        log.Printf("[CORS] %s request to %s from origin: %s", method, path, origin)
 
 		c.Writer.Header().Set("Vary", "Origin") // всегда должен быть
 
@@ -115,7 +125,7 @@ func CORSMiddleware() gin.HandlerFunc {
 }
 
 func (a *App) initRouter(_ context.Context) error {
-    a.router = gin.Default() // СНАЧАЛА создаём роутер
+    a.router = gin.Default()  // СНАЧАЛА создаём роутер
 
     a.router.Use(CORSMiddleware()) // потом уже вешаем мидлварки
     store := cookie.NewStore([]byte("secret"))

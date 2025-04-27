@@ -117,7 +117,7 @@ func (h *CheckListHandler) SendDefaultCheckList(c *gin.Context) {
 		return
 	}
 
-	fileURL, err := h.Repo.GetFileByTypeID(100)
+	fileURL, err := h.Repo.GetFileByTypeID(1)
 	if err != nil {
 		log.Println("Ошибка при получении чек-листа:", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve checklist"})

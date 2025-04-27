@@ -8,7 +8,7 @@ services:
     restart: always
     environment:
       - DB=host=dpg-d06btjjuibrs73ee7r3g-a user=root password=KLbOmqsrOKgkxneVf5jAS0mWYuHKQbl1 dbname=chatbot_k3qg port=5432 sslmode=disable
-      - PORT=8080
+      - PORT=${PORT:-8080} 
       - FRONTEND_URL=http://frontend:3000
     ports:
       - "8080:8080"

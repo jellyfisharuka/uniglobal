@@ -18,8 +18,9 @@ var (
 )
 
 func SetupRouter(r *gin.Engine)  {
+    r.Use(gin.Logger())
     repos := repository.NewRepositories() 
-
+    
     rHandlers := handlers.NewHandlers(repos) // resource handlers 
     letterHandler := handlers.LetterHandler{} 
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
@@ -68,7 +69,4 @@ func SetupRouter(r *gin.Engine)  {
 
     r.GET("/favorites", auth.AuthMiddleware(), handlers.GetFavResponses)
     r.PUT("/messages/like", auth.AuthMiddleware(), handlers.ToggleLikeMessage)
-    r.OPTIONS("/*path", func(c *gin.Context) {
-		c.Status(http.StatusNoContent)
-	})
 }
