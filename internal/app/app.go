@@ -41,6 +41,7 @@ func (a *App) initConfig(_ context.Context) error {
 	//jsonPath := filepath.Join(workDir, "internal", "config", "config.json")
 	gmailPath := filepath.Join(workDir,  "internal", "config", "gmail.json")
 	envPath := filepath.Join(workDir, "pkg", ".env")
+
 	err = config.LoadEnvConfig(envPath)
     if err != nil {
         return err

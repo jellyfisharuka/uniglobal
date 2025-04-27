@@ -75,25 +75,11 @@ func (h *CheckListHandler) SendCheckListByType(c *gin.Context) {
 		return
 	}
 
-	emailService, err := gooogle.NewEmailService()
+	err = SendCheckListMessage(fileURL, email)
 	if err != nil {
-		log.Println("Ошибка инициализации email сервиса:", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Email service unavailable"})
-		return
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to send checklist"})
 	}
-
-	textContent := fmt.Sprintf("Здравствуйте!\n\nВаш чек-лист готов: %s\n\nС уважением, команда UniGlobal", fileURL)
-	htmlContent := fmt.Sprintf("<p>Здравствуйте!</p><p>Ваш чек-лист готов: <a href='%s'>Скачать</a></p><p>С уважением, команда UniGlobal</p>", fileURL)
-
-	go func() {
-		if err := emailService.SendEmail(email, subject, textContent, htmlContent); err != nil {
-			log.Println("Ошибка отправки письма:", err)
-			fmt.Println("email", email)
-		} else {
-			log.Println("Письмо с чек-листом успешно отправлено!")
-		}
-	}()
-
+	
 	c.JSON(http.StatusOK, gin.H{"message": "Check-list has been sent to your email"})
 }
 
@@ -130,27 +116,48 @@ func (h *CheckListHandler) SendDefaultCheckList(c *gin.Context) {
 		return
 	}
 
+    err = SendCheckListMessage(fileURL, email)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to send checklist"})
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Check-list has been sent to your email"})
+}
+
+func SendCheckListMessage(fileUrl string, email string) error{
 	emailService, err := gooogle.NewEmailService()
 	if err != nil {
 		log.Println("Ошибка инициализации email-сервиса:", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Email service unavailable"})
-		return
+		return err
 	}
-
-	subject := "Ваш чек-лист от UniGlobal"
-	textContent := fmt.Sprintf("Здравствуйте!\n\nВаш чек-лист готов: %s\n\nС уважением, команда UniGlobal", fileURL)
-	htmlContent := fmt.Sprintf(`
-		<p>Здравствуйте!</p>
-		<p>Ваш чек-лист готов: <a href='%s'>Скачать</a></p>
-		<p>С уважением, команда UniGlobal</p>`, fileURL)
-
+	textContent := fmt.Sprintf(
+		`Уважаемый(ая) пользователь!
+		
+		Ваш персональный чек-лист успешно сформирован. Вы можете открыть его по следующей ссылке:
+		%s
+		
+		Благодарим за использование сервиса UniGlobal.
+		
+		С уважением,  
+		Команда UniGlobal`,
+		fileUrl)
+		
+	//htmlContent := fmt.Sprintf("<p>Здравствуйте!</p><p>Ваш чек-лист готов: <a href='%s'>Скачать</a></p><p>С уважением, команда UniGlobal</p>", fileURL)
+    htmlContent := fmt.Sprintf(
+		`<p>Уважаемый(ая) пользователь!</p>
+		<p>Ваш персональный чек-лист успешно сформирован. Вы можете открыть его по следующей ссылке:</p>
+		<p><a href="%s">Открыть чек-лист</a></p>
+		<p>Благодарим за использование сервиса <strong>UniGlobal</strong>.</p>
+		<p>С уважением,<br>Команда UniGlobal</p>`,
+		fileUrl)
+		
 	go func() {
 		if err := emailService.SendEmail(email, subject, textContent, htmlContent); err != nil {
 			log.Println("Ошибка отправки письма:", err)
+			fmt.Println("email", email)
 		} else {
-			log.Println("Письмо с чек-листом успешно отправлено на", email)
+			log.Println("Письмо с чек-листом успешно отправлено!")
 		}
 	}()
-
-	c.JSON(http.StatusOK, gin.H{"message": "Check-list has been sent to your email"})
+	return nil
 }

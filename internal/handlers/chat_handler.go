@@ -98,7 +98,7 @@ func (h *ChatHandler) SendMessage(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid chat ID"})
 		return
 	}
-
+    fmt.Println("chatid User", chatID)
 	if err := c.ShouldBindJSON(&message); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Некорректный JSON", "details": err.Error()})
 		return
@@ -109,7 +109,7 @@ func (h *ChatHandler) SendMessage(c *gin.Context) {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Пользователь не аутентифицирован"})
 		return
 	}
-
+    
 	message.SenderID = uint(userID.(int))
 	message.ChatID = uint(chatID)
 
@@ -121,7 +121,7 @@ func (h *ChatHandler) SendMessage(c *gin.Context) {
 	}
 
 	message.Answer = generatedAnswer
-
+    fmt.Println("senderId", userID)
 	if err := h.Repo.AddMessageToChat(&message); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка сохранения сообщения"})
 		return
@@ -175,4 +175,49 @@ func(h *ChatHandler) GetUserChats(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, chats)
+}
+
+// DeleteChat godoc
+// @Security Bearer
+// @Summary Delete a chat
+// @Description Delete a chat by its ID
+// @Tags chats
+// @Accept json
+// @Produce json
+// @Param id path int true "Chat ID"
+// @Success 200 {object} map[string]string "message":"Chat deleted successfully"
+// @Failure 400 {object} ErrorResponse "Invalid input"
+// @Failure 500 {object} ErrorResponse "Internal server error"
+// @Router /chats/{id} [delete]
+func (h *ChatHandler) DeleteChat(c *gin.Context) {
+	idStr := c.Param("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid chat ID"})
+		return
+	}
+
+	userID, exists := c.Get("ID")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "User not authenticated"})
+		return
+	}
+
+	chat, err := h.Repo.GetChatByID(id)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Chat not found"})
+		return
+	}
+
+	if chat.UserID != userID.(int) {
+		c.JSON(http.StatusForbidden, gin.H{"error": "You don't have permission to delete this chat"})
+		return
+	}
+
+	if err := h.Repo.DeleteChat(id); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete chat"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Chat deleted successfully"})
 }

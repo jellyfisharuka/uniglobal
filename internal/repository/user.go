@@ -27,8 +27,8 @@ func (u *UserRepository) UpdateUserFields(userID uint, updates models.UpdateUser
 	}
 
 	if updates.Gender != nil {
-		if err := utils.ValidateAndSetGender(updates.Gender, &updates.Photo); err != nil {
-			return err
+		if _, err := utils.IsValidGender(*updates.Gender); err != nil {
+			return utils.ErrInvalidGender
 		}
 	}
 

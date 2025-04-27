@@ -23,7 +23,9 @@ var Oauth2Config *oauth2.Config
 		log.Fatalf("Unable to read client secret file: %v", err)
 	}
 
-	Oauth2Config, err = google.ConfigFromJSON(b, gmail.GmailReadonlyScope)
+	Oauth2Config, err = google.ConfigFromJSON(b, gmail.GmailReadonlyScope,
+	"https://www.googleapis.com/auth/userinfo.email",
+		"https://www.googleapis.com/auth/userinfo.profile")
 	if err != nil {
 		log.Fatalf("Unable to parse client secret file to config: %v", err)
 	}

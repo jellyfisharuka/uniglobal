@@ -24,8 +24,11 @@ func (r *ChatRepository) UpdateChat(chat *models.Chat) error {
     return r.DB.Save(chat).Error
 }
 
-func (r *ChatRepository) DeleteChat(id uint) error {
-    return r.DB.Delete(&models.Chat{}, id).Error
+func (r *ChatRepository) DeleteChat(id int) error {
+	if err := r.DB.Where("chat_id = ?", id).Delete(&models.Message{}).Error; err != nil {
+		return err
+	}
+	return r.DB.Delete(&models.Chat{}, id).Error
 }
 
 func (r *ChatRepository) GetAllChats() ([]models.Chat, error) { //for admins
