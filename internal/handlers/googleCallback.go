@@ -1,10 +1,12 @@
 package handlers
 
 import (
-	"uniglobal/internal/auth"
-	"uniglobal/internal/gooogle"
-	//"uniglobal/internal/db"
-	//"fmt"
+	"uni_global/internal/auth"
+	"uni_global/internal/db"
+	"uni_global/internal/gooogle"
+	"uni_global/internal/models"
+	"uni_global/internal/utils"
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -16,28 +18,50 @@ func OAuth2CallbackHandler(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Auth code not found"})
 		return
 	}
+
 	tok, err := HandleOAuth2Callback(code, c)
 	if err != nil {
+		log.Printf("OAuth callback error: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to retrieve token from web"})
 		return
 	}
-    email, err := gooogle.GetUserInfo(tok.AccessToken)
+
+	googleUser, err := gooogle.GetUserInfo(tok.AccessToken)
 	if err != nil {
+		log.Printf("Error getting Google user info: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get user info"})
 		return
 	}
-    username := email 
-	jwtToken, err := auth.GenerateToken(username, 0) // ID можно задавать позже
+
+	newUser := models.User{
+		Username:  googleUser.Username,
+		Email:     googleUser.Email,
+		FirstName: googleUser.GivenName,
+		LastName:  googleUser.FamilyName,
+	}
+
+	err = auth.SignupGoogleUser(db.DB, newUser)
+	if err != nil && err != utils.ErrUsernameExists {
+		log.Printf("Error creating user: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user"})
+		return
+	}
+
+	var user models.User
+	if result := db.DB.Where("email = ?", googleUser.Email).First(&user); result.Error != nil {
+		log.Printf("Error retrieving user: %v", result.Error)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve user"})
+		return
+	}
+
+	jwtToken, err := auth.GenerateToken(googleUser.Username, int(user.ID))
 	if err != nil {
+		log.Printf("Error generating token: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create token"})
 		return
 	}
-	//err = db.RedisClient.Set(db.Ctx, fmt.Sprintf("token:%s", email), jwtToken, 0).Err()
-	//if err != nil {
-	//	c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to store token"})
-	//	return
-	//}
 
-	c.SetCookie("auth_token", jwtToken, 3600, "/", "localhost", false, true)
-	c.JSON(http.StatusOK, gin.H{"message": "Authorization successful!", "token": jwtToken})
+	// Set cookie and respond
+	c.SetCookie("uni_auth_token", jwtToken, 3600*72, "/", c.Request.Host, false, false)
+	c.Redirect(http.StatusFound, "https://uniglobal-front.onrender.com/dashboard/profile")
 }
