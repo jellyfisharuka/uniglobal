@@ -1,13 +1,14 @@
 package handlers
 
 import (
+	"fmt"
+	"log"
+	"net/http"
 	"uniglobal/internal/auth"
 	"uniglobal/internal/db"
 	"uniglobal/internal/gooogle"
 	"uniglobal/internal/models"
 	"uniglobal/internal/utils"
-	"log"
-	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
@@ -63,5 +64,6 @@ func OAuth2CallbackHandler(c *gin.Context) {
 
 	// Set cookie and respond
 	c.SetCookie("uni_auth_token", jwtToken, 3600*72, "/", c.Request.Host, false, false)
-	c.Redirect(http.StatusFound, "https://uniglobal-front.onrender.com/dashboard/profile")
+	fmt.Println("redirect moment")
+	c.Redirect(http.StatusFound, "https://uni-backend-nbul.onrender.com/oauth2callback")
 }
