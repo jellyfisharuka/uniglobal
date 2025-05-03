@@ -9,9 +9,12 @@ import (
 	"net/http"
 	"os"
 	"time"
+	"uniglobal/internal/models"
+	"uniglobal/internal/utils"
 
 	"golang.org/x/oauth2"
 	"google.golang.org/api/gmail/v1"
+	"gorm.io/gorm"
 )
 
 func SaveTokenToDB(db *sql.DB, userID string, token *oauth2.Token) error {
@@ -118,4 +121,36 @@ func GetOAuth2Config(filePath string) (*oauth2.Config, error) {
             TokenURL: config.Web.TokenURI,
         },
     }, nil
+}
+
+func SignupGoogleUser(db *gorm.DB, newUser models.User) error {
+	var existingUser models.User
+	result := db.Where("email = ?", newUser.Email).First(&existingUser)
+	if result.Error == nil {
+		return utils.ErrUsernameExists // Уже зарегистрирован
+	}
+
+	if !utils.IsValidEmail(newUser.Email) {
+		return utils.ErrInvalidEmail
+	}
+	
+	var userRole models.Role
+	if newUser.Username == "admin" {
+		if err := db.Where("name=?", "admin").First(&userRole).Error; err != nil {
+			return utils.ErrRoleNotFound
+		}
+	} else {
+		if err := db.Where("name=?", "user").First(&userRole).Error; err != nil {
+			return utils.ErrRoleNotFound
+		}
+	}
+	newUser.RoleID = userRole.ID
+	defaultGender := "male"
+	newUser.Gender = &defaultGender
+	
+	if err := db.Create(&newUser).Error; err != nil {
+		return utils.ErrFailedToCreateUser
+	}
+
+	return nil
 }

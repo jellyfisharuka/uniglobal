@@ -1,11 +1,11 @@
 package handlers
 
 import (
-	"uni_global/internal/auth"
-	"uni_global/internal/db"
-	"uni_global/internal/gooogle"
-	"uni_global/internal/models"
-	"uni_global/internal/utils"
+	"uniglobal/internal/auth"
+	"uniglobal/internal/db"
+	"uniglobal/internal/gooogle"
+	"uniglobal/internal/models"
+	"uniglobal/internal/utils"
 	"log"
 	"net/http"
 
