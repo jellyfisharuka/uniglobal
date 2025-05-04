@@ -28,38 +28,29 @@ func GeneratePythonHandler(ctx context.Context, userID string, prompt string) (s
 	}
 
 	mu.Lock()
-	// Инициализируем историю с systemPrompt, если пользователь новый
 	if _, ok := chatHistories[userID]; !ok {
-		chatHistories[userID] = []openai.ChatCompletionMessage{
-			{
-				Role: "system",
-				Content: "You are a helpful assistant named UniBot for a university application support website. " +
-					"You help users generate motivational and recommendation letters. " +
-					"Reply in the same language as the user's message. Do not mention you are from OpenAI.",
-			},
-		}
+		chatHistories[userID] = []openai.ChatCompletionMessage{}
 	}
 	history := chatHistories[userID]
 	mu.Unlock()
 
-	// Генерация ответа
 	answer, err := generateChatgpt(ctx, prompt, history)
 	if err != nil {
 		log.Printf("[Generate] Error generating GPT response: %v", err)
 		return "", err
 	}
-
+	
 	mu.Lock()
 	chatHistories[userID] = append(history,
-		openai.ChatCompletionMessage{Role: "user", Content: prompt},
-		openai.ChatCompletionMessage{Role: "assistant", Content: answer},
+		openai.ChatCompletionMessage{
+			Role:    "user",
+			Content: prompt,
+		},
+		openai.ChatCompletionMessage{
+			Role:    "assistant",
+			Content: answer,
+		},
 	)
-
-	// Опционально: ограничим историю до последних 20 сообщений (10 пар)
-	const maxHistory = 20
-	if len(chatHistories[userID]) > maxHistory {
-		chatHistories[userID] = chatHistories[userID][len(chatHistories[userID])-maxHistory:]
-	}
 	mu.Unlock()
 
 	return answer, nil
@@ -74,18 +65,17 @@ func generateChatgpt(ctx context.Context, question string, history []openai.Chat
 	}
 
 	client := openai.NewClient(apiKey)
-
-	// Добавляем текущий вопрос к истории
+    
+	
 	history = append(history, openai.ChatCompletionMessage{
 		Role:    "user",
 		Content: question,
 	})
 
 	request := openai.ChatCompletionRequest{
-		Model:       "ft:gpt-4o-mini-2024-07-18:personal::AZePBB1d",
+		Model:       "ft:gpt-4o-mini-2024-07-18:personal::AZePBB1d", 
 		Messages:    history,
 		Temperature: 0.7,
-		MaxTokens:   1500,
 	}
 
 	response, err := client.CreateChatCompletion(ctx, request)
@@ -99,11 +89,5 @@ func generateChatgpt(ctx context.Context, question string, history []openai.Chat
 		return "", errors.New("no response from OpenAI")
 	}
 
-	if response.Choices[0].FinishReason == "length" {
-		log.Println("Response was cut off due to token limit")
-	}
-
-	log.Println("[OpenAI Response]", response.Choices[0].Message.Content)
 	return response.Choices[0].Message.Content, nil
 }
-
