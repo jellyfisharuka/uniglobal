@@ -135,16 +135,36 @@ Write the complete final version of the letter without placeholders or instructi
 }
 
 func createRecommendationLetterPrompt(user models.User, request LetterRequest) string {
-	return fmt.Sprintf(`I am writing to recommend %s %s. As their %s, I have seen firsthand their dedication and achievements, such as %s. %s demonstrates qualities like %s, which make them an excellent candidate for the %s program. Include only the final content of the letter and add today's date: %s. Please write without placeholder brackets and do not include placeholder brackets for the author name. The letter should be in English.`,
-		user.FirstName, user.LastName,
-		request.Relationship,
-		request.Achievements,
-		user.FirstName,
-		request.Qualities,
-		request.Program,
+	return fmt.Sprintf(`Generate a complete self-recommendation letter for a university application written BY THE STUDENT with the following information:
+Student name: %s %s
+Email: %s
+Phone: %s
+City: %s
+Program applied for: %s
+Academic subjects: %s
+Key achievements: %s
+Notable skills: %s
+Career goals: %s
+Date: %s
+
+Format the letter with proper headers including the student's name, contact information, and date at the top, followed by university information and salutation.
+
+The letter should be formal and professional, written from the student's first-person perspective, where the student recommends themselves for the program.
+
+Format without placeholder brackets - use the actual information provided. Include all standard letter components (header with student info, date, recipient info, salutation, body, closing).
+
+Write the complete final version of the letter without placeholders or instructions. The letter should be in English.`,
+user.FirstName, user.LastName,
+ 		user.Email,
+ 		user.Telephone,
+ 		user.City,
+ 		request.Program,
+ 		request.Subjects,
+		 request.Achievements,
+ 		request.Skills,
+ 		request.Goals,
 		currentDate)
 }
-
 // @Security Bearer
 // @Summary Get letter by ID
 // @Description Retrieve a letter by its ID

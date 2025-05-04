@@ -39,7 +39,7 @@ func GeneratePythonHandler(ctx context.Context, userID string, prompt string) (s
 		log.Printf("[Generate] Error generating GPT response: %v", err)
 		return "", err
 	}
-
+	
 	mu.Lock()
 	chatHistories[userID] = append(history,
 		openai.ChatCompletionMessage{
@@ -65,6 +65,15 @@ func generateChatgpt(ctx context.Context, question string, history []openai.Chat
 	}
 
 	client := openai.NewClient(apiKey)
+    
+	systemPrompt := openai.ChatCompletionMessage{
+		Role: "system",
+		Content: "You are a helpful assistant named UniBot for a university application support website. " +
+			"You help users generate motivational and recommendation letters. " +
+			"Reply in the same language as the user's message. Do not mention you are from OpenAI.",
+	}
+
+	history = append([]openai.ChatCompletionMessage{systemPrompt}, history...)
 
 	history = append(history, openai.ChatCompletionMessage{
 		Role:    "user",
