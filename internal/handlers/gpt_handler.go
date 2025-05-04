@@ -66,14 +66,14 @@ func generateChatgpt(ctx context.Context, question string, history []openai.Chat
 
 	client := openai.NewClient(apiKey)
     
-	systemPrompt := openai.ChatCompletionMessage{
+	/*systemPrompt := openai.ChatCompletionMessage{
 		Role: "system",
 		Content: "You are a helpful assistant named UniBot for a university application support website. " +
 			"You help users generate motivational and recommendation letters. " +
 			"Reply in the same language as the user's message. Do not mention you are from OpenAI.",
 	}
 
-	history = append([]openai.ChatCompletionMessage{systemPrompt}, history...)
+	history = append([]openai.ChatCompletionMessage{systemPrompt}, history...)*/
 
 	history = append(history, openai.ChatCompletionMessage{
 		Role:    "user",
@@ -84,6 +84,7 @@ func generateChatgpt(ctx context.Context, question string, history []openai.Chat
 		Model:       "ft:gpt-4o-mini-2024-07-18:personal::AZePBB1d", 
 		Messages:    history,
 		Temperature: 0.7,
+		MaxTokens:   500,
 	}
 
 	response, err := client.CreateChatCompletion(ctx, request)
@@ -95,6 +96,10 @@ func generateChatgpt(ctx context.Context, question string, history []openai.Chat
 	if len(response.Choices) == 0 {
 		log.Println("[OpenAI] No choices returned in response")
 		return "", errors.New("no response from OpenAI")
+	}
+	if response.Choices[0].FinishReason == "length" {
+		log.Println("Response was cut off due to token limit")
+		// Можешь сохранить, предупредить пользователя или попробовать "продолжить"
 	}
 
 	return response.Choices[0].Message.Content, nil

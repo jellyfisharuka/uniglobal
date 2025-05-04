@@ -73,7 +73,7 @@ func GenerateLetterHandler(c *gin.Context, llm *googleai.GoogleAI) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate letter"})
 		return
 	}
-
+    fmt.Println("userId", userIDStr)
 	// Save letter to database
 	letter := models.Letter{
 		UserID:       uint(userID.(int)),

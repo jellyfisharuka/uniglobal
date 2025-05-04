@@ -33,7 +33,7 @@ func GenerateToken(username string, ID int) (string, error) {
 
 func AuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		tokenString, err := c.Cookie("token")
+		tokenString, err := c.Cookie("uni_auth_token")
 		if err != nil || tokenString == "" {
 		fmt.Println("No token found in cookies")
 		tokenString = c.GetHeader("Authorization")
