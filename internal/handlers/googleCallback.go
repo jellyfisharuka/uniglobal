@@ -63,7 +63,9 @@ func OAuth2CallbackHandler(c *gin.Context) {
 	}
 
 	// Set cookie and respond
-	c.SetCookie("uni_auth_token", jwtToken, 3600*72, "/", c.Request.Host, false, false)
+	//c.SetCookie("uni_auth_token", jwtToken, 3600*72, "/", c.Request.Host, false, false)
+	c.SetCookie("uni_auth_token", jwtToken, 3600*72, "/", ".onrender.com", true, true)
+
 	fmt.Println("redirect moment")
 	c.Redirect(http.StatusFound, "https://uniglobal-front.onrender.com/dashboard/profile")
 	//redirectURL := fmt.Sprintf("https://uniglobal-front.onrender.com/dashboard/profile?token=%s", jwtToken)
