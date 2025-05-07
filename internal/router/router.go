@@ -1,6 +1,7 @@
 package router
 
 import (
+	"fmt"
 	"net/http"
 	"net/http/pprof"
 	"uniglobal/internal/auth"
@@ -43,7 +44,7 @@ func SetupRouter(r *gin.Engine)  {
 	r.POST("/signup", handlers.SignupHandler)
 	r.GET("/oauth2callback", handlers.OAuth2CallbackHandler)
 	r.GET("/googleLogin", handlers.LoginGoogleHandler(handlers.Oauth2Config))
-
+    fmt.Println()
     r.PUT("/user/updateInfo",  auth.AuthMiddleware(), rHandlers.UserHandler.UpdateUserFields)
 	r.PUT("/user/change_password", auth.AuthMiddleware(), rHandlers.UserHandler.ChangePassword)
 	r.GET("/user/me", auth.AuthMiddleware(),rHandlers.UserHandler.GetUserInfoByID)
