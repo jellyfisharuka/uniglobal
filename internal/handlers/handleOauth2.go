@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -18,28 +17,22 @@ import (
 )
 var Oauth2Config *oauth2.Config
 
-func InitConfig() error {
-	clientID := os.Getenv("GOOGLE_CLIENT_ID")
-	clientSecret := os.Getenv("GOOGLE_CLIENT_SECRET")
-	redirectURL := os.Getenv("GOOGLE_REDIRECT_URI")
-
-	if clientID == "" || clientSecret == "" || redirectURL == "" {
-		return errors.New("one or more required environment variables are missing")
+func InitConfig() {
+	b, err := os.ReadFile("internal/config/gmail.json")
+	if err != nil {
+		log.Printf("Unable to read client secret file: %v", err)
+		return
 	}
 
-	Oauth2Config = &oauth2.Config{
-		ClientID:     clientID,
-		ClientSecret: clientSecret,
-		RedirectURL:  redirectURL,
-		Scopes: []string{
-			"https://www.googleapis.com/auth/userinfo.email",
-			"https://www.googleapis.com/auth/userinfo.profile",
-			gmail.GmailReadonlyScope,
-		},
-		Endpoint: google.Endpoint,
-	}
+	Oauth2Config, err = google.ConfigFromJSON(b,
+		gmail.GmailReadonlyScope,
+		"https://www.googleapis.com/auth/userinfo.email",
+		"https://www.googleapis.com/auth/userinfo.profile")
 
-	return nil
+	if err != nil {
+		log.Printf("Unable to parse client secret file to config: %v", err)
+		return
+	}
 }
 
 func HandleOAuth2Callback(code string, c *gin.Context) (*oauth2.Token, error) {
@@ -49,7 +42,6 @@ func HandleOAuth2Callback(code string, c *gin.Context) (*oauth2.Token, error) {
 	tok, err := Oauth2Config.Exchange(context.Background(), code)
 	if err != nil {
 		log.Printf("Failed to exchange token: %v", err)
-		log.Fatalf("Unable to retrieve token from web: %v", err)
 		return nil, err
 	}
 	accessToken := tok.AccessToken
