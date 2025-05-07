@@ -73,7 +73,8 @@ func generateChatgpt(ctx context.Context, question string, history []openai.Chat
 	})
 
 	request := openai.ChatCompletionRequest{
-		Model:       "ft:gpt-4o-mini-2024-07-18:personal::AZePBB1d", 
+		//Model:       "ft:gpt-4o-mini-2024-07-18:personal::AZePBB1d", 
+		Model: "gpt-4o-mini",
 		Messages:    history,
 		Temperature: 0.7,
 	}
